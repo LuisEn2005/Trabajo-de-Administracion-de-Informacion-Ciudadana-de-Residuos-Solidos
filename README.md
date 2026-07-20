@@ -1,95 +1,130 @@
-# Sistema de Gestión de Residuos Sólidos y Participación Ciudadana (PIGARS Arequipa)
+# Sistema de Gestión de Residuos Sólidos y Participación Ciudadana
 
-![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo-orange)
-![Sprint actual](https://img.shields.io/badge/Sprint-1%20%2F%202-blue)
-![Arquitectura](https://img.shields.io/badge/Arquitectura-Limpia%20%2F%20Capas-green)
+Proyecto universitario orientado a apoyar la gestión municipal de residuos sólidos y la
+participación ciudadana en Arequipa. Este repositorio se está preparando para el
+**Laboratorio 8: Implementación de DDD con MVC y ORM**.
 
-Este repositorio contiene el diseño arquitectónico y la base de conocimiento para el **Sistema de Gestión de Residuos Sólidos Urbanos**, una solución de ingeniería de software orientada a la provincia de Arequipa y alineada con los lineamientos del **Plan Integral de Gestión Ambiental de Residuos Sólidos (PIGARS)**. El sistema promueve la participación activa de los ciudadanos y optimiza las operaciones logísticas municipales.
+> **Estado:** estructura base en construcción. Los frameworks y las capas están configurados,
+> pero los casos de uso, la autenticación y los CRUD todavía no están implementados por completo.
 
----
+## Stack tecnológico
 
-## 🏗️ Arquitectura del Sistema (Mapeo de Clases e Interfaces)
+- TypeScript
+- Backend REST: NestJS
+- ORM: Prisma
+- Base de datos: PostgreSQL
+- Frontend: React con Vite
+- Monorepo: npm workspaces
+- Calidad: ESLint y Prettier
 
-A partir del modelado formal en StarUML (`Arquitectura en Capas - Basico.mdj`), el sistema se divide estrictamente en cuatro capas bajo los principios de *Domain-Driven Design* (DDD):
+## Estructura del monorepo
 
-### 1. Capa de Presentación (Controllers)
-Encargada de exponer los puntos de entrada del sistema para interactuar con los clientes móviles y web.
-* **`Reporte Controller`**:
-    * `+ CrearReporteIncidencia()`
-* **`Ruta Controller`**:
-    * `+ ObtenerHorariosyRutas()`
-* **`InventarioController`**:
-    * `+ NotificarFaltadeInsumos()`
-* **`Administración Controller`**: Punto de acceso para la gestión administrativa general.
+```text
+.
+├── apps/
+│   ├── backend/                 # API REST con NestJS y Prisma
+│   │   ├── prisma/
+│   │   └── src/
+│   │       ├── modules/        # Bounded contexts organizados con DDD
+│   │       └── shared/         # Base de dominio y configuración transversal
+│   └── frontend/               # Aplicación React con Vite
+├── docs/
+│   ├── arquitectura/
+│   ├── evidencias/
+│   └── uml/                    # Diagramas y archivo editable de StarUML
+└── package.json                # Scripts y workspaces del proyecto
+```
 
-### 2. Capa de Aplicación (Application Services)
-Orquesta el flujo de los casos de uso descritos en los requisitos del backlog, comunicando la presentación con el dominio e infraestructura.
-* **`Reporte Application Service`** (Implementa `IReporte Application Service`):
-    * `+ registrarReporteCiudadano()`
-    * `+ cambiarEstadodeIncidencia()`
-* **`Ruta Application Service`** (Implementa `IRuta Application Service`):
-    * `+ ActualizarRutaExistente()`
-    * `+ ConsultarRutasyHorarios()`
-* **`Administración Appllication Service`** (Implementa `IAdministración Appllication Service`):
-    * `+ GenerarReporteSemanal()`
-    * `+ AsignarEmpleadoAlCamión()`
-* **`InventarioApplicationService`** (Implementa `IInventarioApplicationService`):
-    * `+ registrarFaltadeHerramientas()`
+Cada módulo del backend mantiene la siguiente separación:
 
-### 3. Capa de Dominio (Domain)
-El núcleo lógico del negocio que encapsula el estado de las entidades e impone las reglas invariantes.
+```text
+src/modules/<modulo>/
+├── presentation/       # Controladores HTTP y filtros de NestJS
+├── application/        # Casos de uso, DTO y puertos de aplicación
+├── domain/             # Entidades, objetos de valor, agregados y contratos
+└── infrastructure/     # Prisma y servicios externos
+```
 
-* **Entidades y Objetos de Valor:**
-    * `Ciudadano`, `Administrador`, `Empleado Municipal` (Actores).
-    * `Reporte`, `Estado Reporte`, `Reporte Herramienta`, `Reporte Semanal`.
-    * `Ruta` (`+ CalcularCaminoMinimo()`), `Horario`, `Zona`, `Camion`.
-    * `Inventario`, `herramienta`, `Limpieza`.
-    * `Asignacion`.
-    * `Clasificador Zonas Críticas` (`+ calcularDensidadBasura()`): Lógica core para procesar la severidad geográfica.
-    * `Reporte` (`+ validarCoordenadasArequipa()`): Validación espacial estricta dentro del límite provincial.
+### Responsabilidad de las capas
 
-* **Interfaces de Repositorio (Abstracción de Datos):**
-    * `IReporteRepository` (`+ Save()`, `+ FindbyId()`, `+ FindZonasCríticas()`)
-    * `IRutaRepository` (`+ getAllRoutes()`, `+ Update()`)
-    * `IAsignacionRepository`
-    * `IInventarioRepository`
+- **Presentación:** recibe solicitudes HTTP y entrega respuestas. No contiene reglas de negocio.
+- **Aplicación:** coordina los casos de uso y depende de contratos del dominio.
+- **Dominio:** representa conceptos y reglas del negocio sin importar NestJS, Prisma ni otras
+  tecnologías de infraestructura.
+- **Infraestructura:** implementa persistencia y conexiones externas. Las implementaciones Prisma
+  se ubican en `infrastructure/persistence/prisma/repositories`, mientras que sus interfaces
+  permanecen en `domain/repositories`.
 
-### 4. Capa de Infraestructura (Infrastructure)
-Implementación técnica detallada de los adaptadores externos y la persistencia de datos.
-* **Persistencia:** `ReporteRepositoryImpl`, `RutaRepositoryImpl`, `AsignacionRepositoryImpl`, `InventarioRepositoryImpl` que interactúan de forma directa mediante la clase central `DatabaseConnection`.
-* **Adaptadores de Servicios Externos:**
-    * `NotificacionPushAdapter` (`+ EnviarAlertaDispositivo()`): Envío de alertas tempranas sobre la llegada del camión recolector.
-    * `MapaGeograficoAdapter` (`+ generarMatrizPixelesCalor()`): Motor encargado del renderizado espacial del mapa de calor de residuos.
-    * `AlmacenamientoImagenesAdapter`: Módulo para la persistencia física de evidencias fotográficas de contaminación.
+Las entidades de dominio no son modelos Prisma. El esquema de Prisma no contiene modelos todavía:
+se agregarán después de que el equipo confirme el modelo de datos.
 
----
+## Módulos o bounded contexts
 
-## 📊 Planificación Ágil del Backlog (Sprint Mapping)
+- `shared-kernel`: bases del dominio y conceptos de usuario/sesión. No incluye autenticación real.
+- `reporte-incidencias`: reportes ciudadanos, ubicación, fotos y seguimiento.
+- `gestion-rutas`: rutas, horarios, camiones y avisos de horario.
+- `zonas-recursos`: zonas, asignaciones y reportes semanales.
+- `inventario`: confirmado en el README y los diagramas existentes; por ahora solo conserva la
+  estructura de capas porque sus detalles necesitan validación del equipo.
+- `health`: endpoint técnico mínimo para comprobar que la API responde.
 
-El desarrollo del sistema está estructurado bajo métricas de estimación en Puntos de Historia (PTS):
+## Instalación y ejecución
 
-### 📅 Sprint 1: Infraestructura Base, Reportes e Insumos (22 PTS)
-* **HF.1.1 [Ciudadano]:** Consulta de rutas y horarios mediante `Ruta Controller::ObtenerHorariosyRutas` (5 PTS).
-* **HF.1.3 [Administrador]:** CRUD de rutas mediante `Ruta Application Service::ActualizarRutaExistente` (3 PTS).
-* **HF.2.1 [Ciudadano]:** Formulario de reporte con captura GPS validado mediante `Reporte::validarCoordenadasArequipa` y guardado mediante `IReporteRepository::Save` (5 PTS).
-* **HF.4.1 [Empleado Municipal]:** Reporte de insuficiencia de insumos mediante `InventarioController::NotificarFaltadeInsumos` (3 PTS).
-* **HNF.1.1 & HNF.3.1:** Diseño UX sin capacitación previa y módulo de autenticación segura por roles (6 PTS).
+Requisitos: Node.js 20.19 o superior, npm y una instancia de PostgreSQL.
 
-### 📅 Sprint 2: Análisis Geoespacial Avanzado (13 PTS)
-* **HF.3.1 [Administrador]:** Renderizado automático de densidades críticas mediante `Clasificador Zonas Críticas::calcularDensidadBasura` y `MapaGeograficoAdapter::generarMatrizPixelesCalor` (8 PTS).
-* **HF.3.2 [Administrador]:** Asignación interactiva del personal mediante `Administración Appllication Service::AsignarEmpleadoAlCamión` (5 PTS).
+```bash
+npm install
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
+npm run prisma:validate
+npm run prisma:generate
+```
 
----
+Ejecutar ambos proyectos en desarrollo:
 
-## 🚧 Estado del Módulo `App`
-* **Estructura Backend & Arquitectura UML:** 100% Calibrada e integrada con el modelo StarUML de persistencia, lógica de dominio y contratos de servicios.
-* **Sección App (Frontend / Interfaces de Usuario):** ⚠️ **EN CONSTRUCCIÓN**. Las interfaces móviles y la consola web administrativa de cara al usuario final se encuentran en fase de desarrollo e integración con los controladores definidos.
+```bash
+npm run dev
+```
 
----
+También se pueden iniciar por separado:
 
-## 👥 Integrantes del Equipo (Ciencia de la Computación - UNSA)
-* Ramos Chambi Luis Enrique
-* Valdez Agüero Ronald Reynaldo
-* Llosa Manchego Fernandito
-* Postigo Cabana Juan Carlos
-* Jara Arisaca Daysi
+```bash
+npm run dev:backend     # http://localhost:3000/api
+npm run dev:frontend    # http://localhost:5173
+```
+
+El backend expone `GET /api` como bienvenida y `GET /api/health` como comprobación de estado.
+
+### Verificación y formato
+
+```bash
+npm run build
+npm run lint
+npm run format
+```
+
+## Diagramas
+
+- [Diagrama de arquitectura en capas](docs/uml/Arquitectura%20en%20Capas.png)
+- [Modelo de dominio](docs/uml/Modelo%20de%20Dominio%20Recursos%20y%20residuos%20solidos.png)
+- [Modelo editable de StarUML](docs/uml/Arquitectura%20en%20Capas%20-%20Basico.mdj)
+
+![Arquitectura en capas](docs/uml/Arquitectura%20en%20Capas.png)
+
+El repositorio revisado no contiene el PDF del Laboratorio 8 ni un diagrama separado de casos de
+uso. Deben incorporarse a `docs/` cuando el equipo facilite los archivos originales.
+
+## Cumplimiento del Laboratorio 8
+
+La base actual demuestra una aplicación MVC mediante un controlador REST de NestJS, un frontend
+React y una separación DDD de cuatro capas. Prisma está configurado como ORM para PostgreSQL y se
+inyecta mediante `PrismaModule` y `PrismaService`. Esta entrega prepara la arquitectura y el entorno;
+no presenta como terminadas funcionalidades que siguen pendientes.
+
+## Integrantes
+
+- Ramos Chambi Luis Enrique
+- Valdez Agüero Ronald Reynaldo
+- Llosa Manchego Fernandito
+- Postigo Cabana Juan Carlos
+- Jara Arisaca Daysi
