@@ -2,7 +2,10 @@
   "name": "gestion-residuos-solidos",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["apps/backend", "apps/frontend"],
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "dev:backend": "npm run start:dev --workspace @residuos/backend",

@@ -91,21 +91,40 @@ interface CiudadanoProps extends UsuarioBaseProps {
 export class Ciudadano extends Usuario {
   private ciudadanoProps: Omit<CiudadanoProps, keyof UsuarioBaseProps>;
 
-  private constructor(id: UUID, base: UsuarioBaseProps, extra: Omit<CiudadanoProps, keyof UsuarioBaseProps>) {
+  private constructor(
+    id: UUID,
+    base: UsuarioBaseProps,
+    extra: Omit<CiudadanoProps, keyof UsuarioBaseProps>,
+  ) {
     super(id, base);
     this.ciudadanoProps = extra;
   }
 
-  static async crear(nombre: string, email: string, contrasena: string, telefono?: string): Promise<Ciudadano> {
+  static async crear(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    telefono?: string,
+  ): Promise<Ciudadano> {
     const credenciales = await Credenciales.crear(email, contrasena);
     return new Ciudadano(
       newId(),
-      { nombre, credenciales, rol: RolUsuario.CIUDADANO, estado: EstadoUsuario.ACTIVO, fechaCreacion: new Date() },
+      {
+        nombre,
+        credenciales,
+        rol: RolUsuario.CIUDADANO,
+        estado: EstadoUsuario.ACTIVO,
+        fechaCreacion: new Date(),
+      },
       { telefono, notificacionesActivas: true },
     );
   }
 
-  static reconstruir(id: UUID, base: UsuarioBaseProps, extra: Omit<CiudadanoProps, keyof UsuarioBaseProps>): Ciudadano {
+  static reconstruir(
+    id: UUID,
+    base: UsuarioBaseProps,
+    extra: Omit<CiudadanoProps, keyof UsuarioBaseProps>,
+  ): Ciudadano {
     return new Ciudadano(id, base, extra);
   }
 
@@ -138,21 +157,40 @@ interface AdministradorProps extends UsuarioBaseProps {
 export class Administrador extends Usuario {
   private adminProps: Omit<AdministradorProps, keyof UsuarioBaseProps>;
 
-  private constructor(id: UUID, base: UsuarioBaseProps, extra: Omit<AdministradorProps, keyof UsuarioBaseProps>) {
+  private constructor(
+    id: UUID,
+    base: UsuarioBaseProps,
+    extra: Omit<AdministradorProps, keyof UsuarioBaseProps>,
+  ) {
     super(id, base);
     this.adminProps = extra;
   }
 
-  static async crear(nombre: string, email: string, contrasena: string, cargo: string): Promise<Administrador> {
+  static async crear(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    cargo: string,
+  ): Promise<Administrador> {
     const credenciales = await Credenciales.crear(email, contrasena);
     return new Administrador(
       newId(),
-      { nombre, credenciales, rol: RolUsuario.ADMINISTRADOR, estado: EstadoUsuario.ACTIVO, fechaCreacion: new Date() },
+      {
+        nombre,
+        credenciales,
+        rol: RolUsuario.ADMINISTRADOR,
+        estado: EstadoUsuario.ACTIVO,
+        fechaCreacion: new Date(),
+      },
       { cargo, permisosEspeciales: new Set() },
     );
   }
 
-  static reconstruir(id: UUID, base: UsuarioBaseProps, extra: Omit<AdministradorProps, keyof UsuarioBaseProps>): Administrador {
+  static reconstruir(
+    id: UUID,
+    base: UsuarioBaseProps,
+    extra: Omit<AdministradorProps, keyof UsuarioBaseProps>,
+  ): Administrador {
     return new Administrador(id, base, extra);
   }
 

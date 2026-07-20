@@ -23,7 +23,12 @@ export class AsignacionRecurso extends Entity<AsignacionRecurso> {
     this.props = props;
   }
 
-  static asignar(nombre: string, idZona: UUID, idTrabajador?: UUID, idCamion?: UUID): AsignacionRecurso {
+  static asignar(
+    nombre: string,
+    idZona: UUID,
+    idTrabajador?: UUID,
+    idCamion?: UUID,
+  ): AsignacionRecurso {
     return new AsignacionRecurso(newId(), {
       nombre,
       idZona,

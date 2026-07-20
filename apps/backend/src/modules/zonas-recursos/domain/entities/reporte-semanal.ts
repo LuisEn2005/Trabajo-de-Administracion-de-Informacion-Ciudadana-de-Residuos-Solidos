@@ -16,7 +16,12 @@ export class ReporteSemanal extends Entity<ReporteSemanal> {
     this.props = props;
   }
 
-  static generar(semanaInicio: Date, semanaFin: Date, totalIncidencias: number, resumen: string): ReporteSemanal {
+  static generar(
+    semanaInicio: Date,
+    semanaFin: Date,
+    totalIncidencias: number,
+    resumen: string,
+  ): ReporteSemanal {
     return new ReporteSemanal(newId(), { semanaInicio, semanaFin, totalIncidencias, resumen });
   }
 

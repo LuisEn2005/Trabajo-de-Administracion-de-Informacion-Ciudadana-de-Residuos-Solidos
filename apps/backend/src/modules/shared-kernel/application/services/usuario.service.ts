@@ -2,13 +2,29 @@ import { UUID } from '../../../../shared/domain/base';
 import { NotFoundError, UnauthorizedError } from '../../../../shared/domain/domain-error';
 import { Ciudadano, Administrador } from '../../domain/aggregates/usuario';
 import { Sesion } from '../../domain/entities/sesion';
-import { IUsuarioRepositorio, ISesionRepositorio } from '../../domain/repositories/usuario.repositorio';
+import {
+  IUsuarioRepositorio,
+  ISesionRepositorio,
+} from '../../domain/repositories/usuario.repositorio';
 import { randomBytes } from 'crypto';
 
 export interface IUsuarioApplicationService {
-  registrarCiudadano(nombre: string, email: string, contrasena: string, telefono?: string): Promise<UUID>;
-  registrarAdministrador(nombre: string, email: string, contrasena: string, cargo: string): Promise<UUID>;
-  autenticar(email: string, contrasena: string): Promise<{ token: string; idUsuario: UUID; rol: string }>;
+  registrarCiudadano(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    telefono?: string,
+  ): Promise<UUID>;
+  registrarAdministrador(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    cargo: string,
+  ): Promise<UUID>;
+  autenticar(
+    email: string,
+    contrasena: string,
+  ): Promise<{ token: string; idUsuario: UUID; rol: string }>;
   cerrarSesion(token: string): Promise<void>;
   cambiarContrasena(idUsuario: UUID, actual: string, nueva: string): Promise<void>;
 }
@@ -19,7 +35,12 @@ export class UsuarioApplicationService implements IUsuarioApplicationService {
     private readonly sesionRepo: ISesionRepositorio,
   ) {}
 
-  async registrarCiudadano(nombre: string, email: string, contrasena: string, telefono?: string): Promise<UUID> {
+  async registrarCiudadano(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    telefono?: string,
+  ): Promise<UUID> {
     const existente = await this.usuarioRepo.buscarPorCorreo(email);
     if (existente) {
       throw new UnauthorizedError('El correo ya está registrado');
@@ -29,7 +50,12 @@ export class UsuarioApplicationService implements IUsuarioApplicationService {
     return ciudadano.id;
   }
 
-  async registrarAdministrador(nombre: string, email: string, contrasena: string, cargo: string): Promise<UUID> {
+  async registrarAdministrador(
+    nombre: string,
+    email: string,
+    contrasena: string,
+    cargo: string,
+  ): Promise<UUID> {
     const existente = await this.usuarioRepo.buscarPorCorreo(email);
     if (existente) {
       throw new UnauthorizedError('El correo ya está registrado');
@@ -39,7 +65,10 @@ export class UsuarioApplicationService implements IUsuarioApplicationService {
     return admin.id;
   }
 
-  async autenticar(email: string, contrasena: string): Promise<{ token: string; idUsuario: UUID; rol: string }> {
+  async autenticar(
+    email: string,
+    contrasena: string,
+  ): Promise<{ token: string; idUsuario: UUID; rol: string }> {
     const usuario = await this.usuarioRepo.buscarPorCorreo(email);
     if (!usuario) {
       throw new UnauthorizedError('Credenciales inválidas');

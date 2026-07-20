@@ -13,7 +13,12 @@ export class Ubicacion extends ValueObject<UbicacionProps> {
     super(props);
   }
 
-  static crear(latitud: number, longitud: number, distrito: string, direccionReferencia: string): Ubicacion {
+  static crear(
+    latitud: number,
+    longitud: number,
+    distrito: string,
+    direccionReferencia: string,
+  ): Ubicacion {
     if (latitud < -90 || latitud > 90) {
       throw new ValidationError(`Latitud fuera de rango: ${latitud}`);
     }

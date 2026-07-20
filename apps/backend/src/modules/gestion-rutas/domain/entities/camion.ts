@@ -1,5 +1,8 @@
 import { Entity, UUID, newId } from '../../../../shared/domain/base';
-import { ValidationError, InvalidStateTransitionError } from '../../../../shared/domain/domain-error';
+import {
+  ValidationError,
+  InvalidStateTransitionError,
+} from '../../../../shared/domain/domain-error';
 
 export enum EstadoCamion {
   OPERATIVO = 'OPERATIVO',

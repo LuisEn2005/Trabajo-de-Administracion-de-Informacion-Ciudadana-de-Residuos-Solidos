@@ -23,7 +23,12 @@ export class Zona extends AggregateRoot<Zona> {
     if (!nombre.trim()) {
       throw new ValidationError('El nombre de la zona no puede estar vacío');
     }
-    return new Zona(newId(), { nombre, distrito, nivelCriticidad: 0, fechaUltimoCalculo: new Date() });
+    return new Zona(newId(), {
+      nombre,
+      distrito,
+      nivelCriticidad: 0,
+      fechaUltimoCalculo: new Date(),
+    });
   }
 
   static reconstruir(id: UUID, props: ZonaProps): Zona {
@@ -43,7 +48,9 @@ export class Zona extends AggregateRoot<Zona> {
   }
 
   calcularCriticidad(reportesPendientes: number, densidadPoblacional: number): number {
-    const score = reportesPendientes * PESO_REPORTES_PENDIENTES + densidadPoblacional * PESO_DENSIDAD_POBLACIONAL;
+    const score =
+      reportesPendientes * PESO_REPORTES_PENDIENTES +
+      densidadPoblacional * PESO_DENSIDAD_POBLACIONAL;
     this.props.nivelCriticidad = Math.min(100, Math.round(score));
     this.props.fechaUltimoCalculo = new Date();
     return this.props.nivelCriticidad;

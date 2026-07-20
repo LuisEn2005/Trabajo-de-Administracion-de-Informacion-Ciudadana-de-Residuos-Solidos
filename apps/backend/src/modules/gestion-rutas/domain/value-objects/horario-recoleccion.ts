@@ -23,7 +23,12 @@ export class HorarioRecoleccion extends ValueObject<HorarioRecoleccionProps> {
     super(props);
   }
 
-  static crear(diasSemana: DiaSemana[], horaInicio: string, horaFin: string, frecuenciaDias: number): HorarioRecoleccion {
+  static crear(
+    diasSemana: DiaSemana[],
+    horaInicio: string,
+    horaFin: string,
+    frecuenciaDias: number,
+  ): HorarioRecoleccion {
     if (diasSemana.length === 0) {
       throw new ValidationError('Debe especificar al menos un día de la semana');
     }

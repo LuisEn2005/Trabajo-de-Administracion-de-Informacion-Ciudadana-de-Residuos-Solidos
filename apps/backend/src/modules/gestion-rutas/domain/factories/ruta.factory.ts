@@ -19,6 +19,12 @@ export class RutaFactory {
       params.horaFin,
       params.frecuenciaDias,
     );
-    return Ruta.crear(params.nombre, params.descripcion, horario, params.idAdministrador, params.zonas);
+    return Ruta.crear(
+      params.nombre,
+      params.descripcion,
+      horario,
+      params.idAdministrador,
+      params.zonas,
+    );
   }
 }

@@ -1,5 +1,8 @@
 import { AggregateRoot, UUID, newId } from '../../../../shared/domain/base';
-import { ValidationError, InvalidStateTransitionError } from '../../../../shared/domain/domain-error';
+import {
+  ValidationError,
+  InvalidStateTransitionError,
+} from '../../../../shared/domain/domain-error';
 import { HorarioRecoleccion, DiaSemana } from '../value-objects/horario-recoleccion';
 
 export enum EstadoRuta {

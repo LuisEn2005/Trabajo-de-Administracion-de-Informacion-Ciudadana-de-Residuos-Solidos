@@ -24,7 +24,12 @@ export interface CrearReporteDTO {
 export interface IReporteApplicationService {
   crearReporte(dto: CrearReporteDTO): Promise<UUID>;
   obtenerReporte(idReporte: UUID): Promise<ReporteCiudadano>;
-  actualizarEstado(idReporte: UUID, nuevoEstado: EstadoReporte, comentario?: string, idAdministrador?: UUID): Promise<void>;
+  actualizarEstado(
+    idReporte: UUID,
+    nuevoEstado: EstadoReporte,
+    comentario?: string,
+    idAdministrador?: UUID,
+  ): Promise<void>;
   listarPorCiudadano(idCiudadano: UUID): Promise<ReporteCiudadano[]>;
 }
 

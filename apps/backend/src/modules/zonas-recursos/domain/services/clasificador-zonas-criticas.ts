@@ -9,7 +9,11 @@ export class ClasificadorZonasCriticas {
   async clasificar(zona: Zona, densidadPoblacional: number): Promise<number> {
     const desde = new Date();
     desde.setDate(desde.getDate() - 30);
-    const reportesPendientes = await this.reporteRepo.contarPorZonaYPeriodo(zona.id, desde, new Date());
+    const reportesPendientes = await this.reporteRepo.contarPorZonaYPeriodo(
+      zona.id,
+      desde,
+      new Date(),
+    );
 
     return zona.calcularCriticidad(reportesPendientes, densidadPoblacional);
   }

@@ -6,7 +6,9 @@ export interface IMapaGeograficoServicio {
 }
 
 export class MapaGeograficoAdapter implements IMapaGeograficoServicio {
-  generarPuntosCalor(reportes: { idZona: UUID; latitud: number; longitud: number }[]): PuntoCalor[] {
+  generarPuntosCalor(
+    reportes: { idZona: UUID; latitud: number; longitud: number }[],
+  ): PuntoCalor[] {
     const agrupados = new Map<UUID, { latitud: number; longitud: number; count: number }>();
 
     reportes.forEach((r) => {

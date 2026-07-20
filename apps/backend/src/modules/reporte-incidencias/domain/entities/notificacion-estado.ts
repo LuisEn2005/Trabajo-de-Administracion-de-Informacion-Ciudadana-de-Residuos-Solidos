@@ -35,7 +35,12 @@ export class NotificacionEstado extends Entity<NotificacionEstado> {
     this.props = props;
   }
 
-  static crear(idReporte: UUID, idCiudadano: UUID, canal: CanalNotificacion, mensaje: string): NotificacionEstado {
+  static crear(
+    idReporte: UUID,
+    idCiudadano: UUID,
+    canal: CanalNotificacion,
+    mensaje: string,
+  ): NotificacionEstado {
     return new NotificacionEstado(newId(), {
       idReporte,
       idCiudadano,
@@ -70,9 +75,10 @@ export class NotificacionEstado extends Entity<NotificacionEstado> {
 
   marcarFallida(): void {
     this.props.intentosFallidos += 1;
-    this.props.estado = this.props.intentosFallidos >= MAX_INTENTOS
-      ? EstadoNotificacion.FALLIDA
-      : EstadoNotificacion.PENDIENTE;
+    this.props.estado =
+      this.props.intentosFallidos >= MAX_INTENTOS
+        ? EstadoNotificacion.FALLIDA
+        : EstadoNotificacion.PENDIENTE;
   }
 
   puedeReintentar(): boolean {

@@ -3,7 +3,10 @@ import { NotFoundError } from '../../../../shared/domain/domain-error';
 import { RutaFactory } from '../../domain/factories/ruta.factory';
 import { Ruta } from '../../domain/aggregates/ruta';
 import { DiaSemana } from '../../domain/value-objects/horario-recoleccion';
-import { NotificacionHorario, TipoNotificacionHorario } from '../../domain/entities/notificacion-horario';
+import {
+  NotificacionHorario,
+  TipoNotificacionHorario,
+} from '../../domain/entities/notificacion-horario';
 import {
   IRutaRepositorio,
   ICamionRepositorio,
@@ -24,7 +27,12 @@ export interface CrearRutaDTO {
 export interface IRutaApplicationService {
   registrarRuta(dto: CrearRutaDTO): Promise<UUID>;
   obtenerRuta(idRuta: UUID): Promise<Ruta>;
-  actualizarHorario(idRuta: UUID, diasSemana: DiaSemana[], horaInicio: string, horaFin: string): Promise<void>;
+  actualizarHorario(
+    idRuta: UUID,
+    diasSemana: DiaSemana[],
+    horaInicio: string,
+    horaFin: string,
+  ): Promise<void>;
   asignarCamion(idRuta: UUID, idCamion: UUID): Promise<void>;
   suspenderRuta(idRuta: UUID): Promise<void>;
   listarActivas(): Promise<Ruta[]>;
@@ -42,7 +50,11 @@ export class RutaApplicationService implements IRutaApplicationService {
     ruta.registrar();
     await this.rutaRepo.guardar(ruta);
 
-    const notificacion = NotificacionHorario.crear(ruta.id, TipoNotificacionHorario.RUTA_CREADA, `Nueva ruta: ${ruta.nombre}`);
+    const notificacion = NotificacionHorario.crear(
+      ruta.id,
+      TipoNotificacionHorario.RUTA_CREADA,
+      `Nueva ruta: ${ruta.nombre}`,
+    );
     await this.notificacionRepo.guardar(notificacion);
 
     return ruta.id;
@@ -56,7 +68,12 @@ export class RutaApplicationService implements IRutaApplicationService {
     return ruta;
   }
 
-  async actualizarHorario(idRuta: UUID, diasSemana: DiaSemana[], horaInicio: string, horaFin: string): Promise<void> {
+  async actualizarHorario(
+    idRuta: UUID,
+    diasSemana: DiaSemana[],
+    horaInicio: string,
+    horaFin: string,
+  ): Promise<void> {
     const ruta = await this.obtenerRuta(idRuta);
     const cambio = ruta.actualizarHorario(diasSemana, horaInicio, horaFin);
     await this.rutaRepo.actualizar(ruta);
