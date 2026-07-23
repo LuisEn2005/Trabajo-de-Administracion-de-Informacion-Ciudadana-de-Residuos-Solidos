@@ -7,4 +7,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Los modelos se agregarán cuando el equipo valide el modelo de datos.
+enum FrecuenciaRuta {
+  SEMANAL
+  QUINCENAL
+}
+
+enum DiaSemana {
+  LUNES
+  MARTES
+  MIERCOLES
+  JUEVES
+  VIERNES
+  SABADO
+  DOMINGO
+}
+
+enum Turno {
+  MANANA
+  TARDE
+  NOCHE
+}
+
+enum TipoCarroceria {
+  COMPACTADOR
+  BARANDA
+}
+
+model Ruta {
+  id                   Int           @id @default(autoincrement())
+  numero               Int           @unique
+  nombre               String        @db.VarChar(100)
+  descripcionCobertura String        @map("descripcion_cobertura") @db.Text
+  activa               Boolean       @default(true)
+  horarios             HorarioRuta[]
+  vehiculos            Vehiculo[]
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  @@map("rutas")
+}
+
+model HorarioRuta {
+  id         Int            @id @default(autoincrement())
+  rutaId     Int            @map("ruta_id")
+  frecuencia FrecuenciaRuta
+  diaSemana  DiaSemana      @map("dia_semana")
+  turno      Turno
+  horaInicio DateTime       @map("hora_inicio") @db.Time(0)
+  horaFin    DateTime       @map("hora_fin") @db.Time(0)
+  activo     Boolean        @default(true)
+
+  ruta Ruta @relation(fields: [rutaId], references: [id], onDelete: Cascade)
+
+  @@unique([rutaId, diaSemana, horaInicio])
+  @@index([rutaId])
+  @@map("horarios_ruta")
+}
+
+model Vehiculo {
+  id         Int            @id @default(autoincrement())
+  placa      String         @unique @db.VarChar(10)
+  carroceria TipoCarroceria
+  rutaId     Int            @map("ruta_id")
+  activo     Boolean        @default(true)
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  ruta Ruta @relation(fields: [rutaId], references: [id], onDelete: Restrict)
+
+  @@index([rutaId])
+  @@map("vehiculos")
+}
