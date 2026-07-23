@@ -1,0 +1,22 @@
+{
+  "name": "gestion-residuos-solidos",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:backend": "npm run start:dev --workspace @residuos/backend",
+    "dev:frontend": "npm run dev --workspace @residuos/frontend",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css,yml,yaml}\" --ignore-path .gitignore",
+    "prisma:validate": "npm run prisma:validate --workspace @residuos/backend",
+    "prisma:generate": "npm run prisma:generate --workspace @residuos/backend"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
