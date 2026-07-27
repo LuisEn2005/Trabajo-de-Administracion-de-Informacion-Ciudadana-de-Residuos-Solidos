@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/repositorio/prisma/prisma.service';
 import {
   Contenedor,
@@ -10,6 +10,7 @@ import {
   ActualizarContenedorDatos,
   ContenedorRepository,
   CrearContenedorDatos,
+  IContenedorMapper,
 } from '../contenedor.repository';
 
 export interface ContenedorPersistencia {
@@ -24,8 +25,10 @@ export interface ContenedorPersistencia {
   updatedAt: Date;
 }
 
+export const CONTENEDOR_MAPPER_TOKEN = 'CONTENEDOR_MAPPER_TOKEN';
+
 @Injectable()
-export class ContenedorMapper {
+export class ContenedorMapper implements IContenedorMapper {
   toDomain(registro: ContenedorPersistencia): Contenedor {
     return new Contenedor(
       registro.id,
@@ -54,7 +57,8 @@ export class ContenedorMapper {
 export class PrismaContenedorRepository implements ContenedorRepository {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mapper: ContenedorMapper,
+    @Inject(CONTENEDOR_MAPPER_TOKEN) 
+    private readonly mapper: IContenedorMapper,
   ) {}
 
   async crear(datos: CrearContenedorDatos): Promise<Contenedor> {
