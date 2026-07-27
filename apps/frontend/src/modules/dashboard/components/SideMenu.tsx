@@ -25,7 +25,7 @@ type SideMenuProps = {
 };
 
 const elementosMenu: ElementoMenu[] = [
-  { etiqueta: 'Dashboard', icono: LayoutDashboard, ruta: '/dashboard' },
+  { etiqueta: 'Inicio', icono: LayoutDashboard, ruta: '/dashboard' },
   { etiqueta: 'Rutas', icono: Map, ruta: '/dashboard/rutas' },
   { etiqueta: 'Horarios', icono: CalendarClock, ruta: '/dashboard/horarios' },
   { etiqueta: 'Puntos', icono: MapPin, ruta: '/dashboard/puntos' },
@@ -42,7 +42,7 @@ function SideMenu({ rutaActual }: SideMenuProps) {
   );
 
   return (
-    <nav className="flex-1 space-y-3 overflow-y-auto px-7 py-8" aria-label="Men? principal del dashboard">
+    <nav className="flex-1 space-y-3 overflow-y-auto px-7 py-8" aria-label="Menú principal del sistema">
       {elementosVisibles.map((elemento) => {
         const Icono = elemento.icono;
         const estaActivo = rutaActual === elemento.ruta;

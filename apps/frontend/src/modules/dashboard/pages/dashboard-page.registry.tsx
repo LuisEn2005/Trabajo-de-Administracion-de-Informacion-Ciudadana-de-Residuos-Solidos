@@ -15,8 +15,8 @@ type VistaDashboard = EncabezadoDashboard & {
 
 const vistasPorRuta: Record<RutaDashboard, VistaDashboard> = {
   '/dashboard': {
-    titulo: 'Dashboard operativo',
-    descripcion: 'Resumen general de rutas, horarios, flota y asignaciones registradas.',
+    titulo: 'Inicio',
+    descripcion: 'Consulta información pública sobre rutas, horarios y puntos de recolección.',
     Componente: ResumenDashboardPage,
   },
   '/dashboard/rutas': {
@@ -51,7 +51,7 @@ const vistasPorRuta: Record<RutaDashboard, VistaDashboard> = {
   },
   '/dashboard/administradores': {
     titulo: 'Administradores',
-    descripcion: 'Usuarios administrativos contemplados por el modelo actual.',
+    descripcion: 'Cuentas de gestión disponibles para el personal autorizado.',
     Componente: AdministradoresPage,
   },
 };
