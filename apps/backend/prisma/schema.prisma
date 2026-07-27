@@ -33,29 +33,60 @@ enum TipoCarroceria {
   BARANDA
 }
 
+enum EstadoPuntoRecoleccion {
+  ACTIVO
+  INACTIVO
+  MANTENIMIENTO
+}
+
+enum TipoContenedor {
+  ORGANICO
+  INORGANICO
+  RECICLABLE
+  MIXTO
+}
+
+enum EstadoContenedor {
+  OPERATIVO
+  LLENO
+  DANADO
+  EN_MANTENIMIENTO
+  RETIRADO
+}
+
+enum EstadoAsignacionOperativa {
+  PROGRAMADA
+  ACTIVA
+  FINALIZADA
+  CANCELADA
+}
+
 model Ruta {
-  id                   Int           @id @default(autoincrement())
-  numero               Int           @unique
-  nombre               String        @db.VarChar(100)
-  descripcionCobertura String        @map("descripcion_cobertura") @db.Text
-  activa               Boolean       @default(true)
+  id                   Int                    @id @default(autoincrement())
+  numero               Int                    @unique
+  nombre               String                 @db.VarChar(100)
+  descripcionCobertura String                 @map("descripcion_cobertura") @db.Text
+  activa               Boolean                @default(true)
   horarios             HorarioRuta[]
   vehiculos            Vehiculo[]
-  createdAt            DateTime      @default(now()) @map("created_at")
-  updatedAt            DateTime      @updatedAt @map("updated_at")
+  asignaciones         AsignacionOperativa[]
+  puntos               RutaPuntoRecoleccion[]
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
 
   @@map("rutas")
 }
 
 model HorarioRuta {
-  id         Int            @id @default(autoincrement())
-  rutaId     Int            @map("ruta_id")
-  frecuencia FrecuenciaRuta
-  diaSemana  DiaSemana      @map("dia_semana")
-  turno      Turno
-  horaInicio DateTime       @map("hora_inicio") @db.Time(0)
-  horaFin    DateTime       @map("hora_fin") @db.Time(0)
-  activo     Boolean        @default(true)
+  id           Int                   @id @default(autoincrement())
+  rutaId       Int                   @map("ruta_id")
+  frecuencia   FrecuenciaRuta
+  diaSemana    DiaSemana             @map("dia_semana")
+  turno        Turno
+  horaInicio   DateTime              @map("hora_inicio") @db.Time(0)
+  horaFin      DateTime              @map("hora_fin") @db.Time(0)
+  activo       Boolean               @default(true)
+  asignaciones AsignacionOperativa[]
 
   ruta Ruta @relation(fields: [rutaId], references: [id], onDelete: Cascade)
 
@@ -65,16 +96,98 @@ model HorarioRuta {
 }
 
 model Vehiculo {
-  id         Int            @id @default(autoincrement())
-  placa      String         @unique @db.VarChar(10)
-  carroceria TipoCarroceria
-  rutaId     Int            @map("ruta_id")
-  activo     Boolean        @default(true)
-  createdAt  DateTime       @default(now()) @map("created_at")
-  updatedAt  DateTime       @updatedAt @map("updated_at")
+  id           Int                   @id @default(autoincrement())
+  placa        String                @unique @db.VarChar(10)
+  carroceria   TipoCarroceria
+  rutaId       Int                   @map("ruta_id")
+  activo       Boolean               @default(true)
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+  asignaciones AsignacionOperativa[]
 
   ruta Ruta @relation(fields: [rutaId], references: [id], onDelete: Restrict)
 
   @@index([rutaId])
   @@map("vehiculos")
+}
+
+model Administrador {
+  id           Int      @id @default(autoincrement())
+  nombre       String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(150)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("administradores")
+}
+
+model PuntoRecoleccion {
+  id           Int                    @id @default(autoincrement())
+  nombre       String                 @db.VarChar(120)
+  direccion    String                 @db.VarChar(200)
+  referencia   String?                @db.VarChar(200)
+  latitud      Decimal                @db.Decimal(10, 7)
+  longitud     Decimal                @db.Decimal(10, 7)
+  estado       EstadoPuntoRecoleccion @default(ACTIVO)
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  contenedores Contenedor[]
+  rutas        RutaPuntoRecoleccion[]
+
+  @@index([estado])
+  @@map("puntos_recoleccion")
+}
+
+model Contenedor {
+  id                 Int              @id @default(autoincrement())
+  codigo             String           @unique @db.VarChar(50)
+  tipo               TipoContenedor
+  capacidad          Decimal          @db.Decimal(10, 2)
+  estado             EstadoContenedor @default(OPERATIVO)
+  puntoRecoleccionId Int?             @map("punto_recoleccion_id")
+  fechaInstalacion   DateTime?        @map("fecha_instalacion") @db.Date
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  puntoRecoleccion PuntoRecoleccion? @relation(fields: [puntoRecoleccionId], references: [id], onDelete: SetNull)
+
+  @@index([estado])
+  @@index([puntoRecoleccionId])
+  @@map("contenedores")
+}
+
+model AsignacionOperativa {
+  id         Int                       @id @default(autoincrement())
+  rutaId     Int                       @map("ruta_id")
+  vehiculoId Int                       @map("vehiculo_id")
+  horarioId  Int                       @map("horario_id")
+  estado     EstadoAsignacionOperativa @default(PROGRAMADA)
+  fecha      DateTime?                 @db.Date
+  createdAt  DateTime                  @default(now()) @map("created_at")
+  updatedAt  DateTime                  @updatedAt @map("updated_at")
+
+  ruta     Ruta        @relation(fields: [rutaId], references: [id], onDelete: Restrict)
+  vehiculo Vehiculo    @relation(fields: [vehiculoId], references: [id], onDelete: Restrict)
+  horario  HorarioRuta @relation(fields: [horarioId], references: [id], onDelete: Restrict)
+
+  @@index([rutaId])
+  @@index([vehiculoId])
+  @@index([horarioId])
+  @@index([estado])
+  @@map("asignaciones_operativas")
+}
+
+model RutaPuntoRecoleccion {
+  rutaId             Int  @map("ruta_id")
+  puntoRecoleccionId Int  @map("punto_recoleccion_id")
+  orden              Int?
+
+  ruta             Ruta             @relation(fields: [rutaId], references: [id], onDelete: Cascade)
+  puntoRecoleccion PuntoRecoleccion @relation(fields: [puntoRecoleccionId], references: [id], onDelete: Cascade)
+
+  @@id([rutaId, puntoRecoleccionId])
+  @@index([puntoRecoleccionId])
+  @@map("rutas_puntos_recoleccion")
 }
