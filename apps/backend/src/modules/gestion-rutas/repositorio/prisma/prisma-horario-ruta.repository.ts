@@ -1,7 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, HorarioRuta as HorarioRutaPrisma } from '@prisma/client';
+import {
+  DiaSemana as DiaSemanaPrisma,
+  FrecuenciaRuta as FrecuenciaRutaPrisma,
+  HorarioRuta as HorarioRutaPrisma,
+  Turno as TurnoPrisma,
+} from '@prisma/client';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
-import { HorarioRuta } from '../../dominio/entities/horario-ruta.entity';
+import {
+  DiaSemana,
+  FrecuenciaRuta,
+  HorarioRuta,
+  Turno,
+} from '../../dominio/entities/horario-ruta.entity';
 import {
   ActualizarHorarioRutaDatos,
   CrearHorarioRutaDatos,
@@ -16,9 +26,9 @@ export class PrismaHorarioRutaRepository implements HorarioRutaRepository {
     const horarioRuta = await this.prisma.horarioRuta.create({
       data: {
         rutaId: datos.rutaId,
-        frecuencia: datos.frecuencia,
-        diaSemana: datos.diaSemana,
-        turno: datos.turno,
+        frecuencia: this.toPrismaFrecuencia(datos.frecuencia),
+        diaSemana: this.toPrismaDiaSemana(datos.diaSemana),
+        turno: this.toPrismaTurno(datos.turno),
         horaInicio: this.toPrismaTime(datos.horaInicio),
         horaFin: this.toPrismaTime(datos.horaFin),
         activo: datos.activo ?? true,
@@ -57,9 +67,13 @@ export class PrismaHorarioRutaRepository implements HorarioRutaRepository {
     const horarioRuta = await this.prisma.horarioRuta.update({
       where: { id },
       data: {
-        ...(datos.frecuencia !== undefined ? { frecuencia: datos.frecuencia } : {}),
-        ...(datos.diaSemana !== undefined ? { diaSemana: datos.diaSemana } : {}),
-        ...(datos.turno !== undefined ? { turno: datos.turno } : {}),
+        ...(datos.frecuencia !== undefined
+          ? { frecuencia: this.toPrismaFrecuencia(datos.frecuencia) }
+          : {}),
+        ...(datos.diaSemana !== undefined
+          ? { diaSemana: this.toPrismaDiaSemana(datos.diaSemana) }
+          : {}),
+        ...(datos.turno !== undefined ? { turno: this.toPrismaTurno(datos.turno) } : {}),
         ...(datos.horaInicio !== undefined
           ? { horaInicio: this.toPrismaTime(datos.horaInicio) }
           : {}),
@@ -80,13 +94,91 @@ export class PrismaHorarioRutaRepository implements HorarioRutaRepository {
   private toDomain(horarioRuta: HorarioRutaPrisma): HorarioRuta {
     return new HorarioRuta(horarioRuta.id, {
       rutaId: horarioRuta.rutaId,
-      frecuencia: horarioRuta.frecuencia,
-      diaSemana: horarioRuta.diaSemana,
-      turno: horarioRuta.turno,
+      frecuencia: this.toDomainFrecuencia(horarioRuta.frecuencia),
+      diaSemana: this.toDomainDiaSemana(horarioRuta.diaSemana),
+      turno: this.toDomainTurno(horarioRuta.turno),
       horaInicio: this.fromPrismaTime(horarioRuta.horaInicio),
       horaFin: this.fromPrismaTime(horarioRuta.horaFin),
       activo: horarioRuta.activo,
     });
+  }
+
+  private toDomainFrecuencia(frecuencia: FrecuenciaRutaPrisma): FrecuenciaRuta {
+    switch (frecuencia) {
+      case FrecuenciaRutaPrisma.SEMANAL:
+        return FrecuenciaRuta.SEMANAL;
+      case FrecuenciaRutaPrisma.QUINCENAL:
+        return FrecuenciaRuta.QUINCENAL;
+    }
+  }
+
+  private toDomainDiaSemana(diaSemana: DiaSemanaPrisma): DiaSemana {
+    switch (diaSemana) {
+      case DiaSemanaPrisma.LUNES:
+        return DiaSemana.LUNES;
+      case DiaSemanaPrisma.MARTES:
+        return DiaSemana.MARTES;
+      case DiaSemanaPrisma.MIERCOLES:
+        return DiaSemana.MIERCOLES;
+      case DiaSemanaPrisma.JUEVES:
+        return DiaSemana.JUEVES;
+      case DiaSemanaPrisma.VIERNES:
+        return DiaSemana.VIERNES;
+      case DiaSemanaPrisma.SABADO:
+        return DiaSemana.SABADO;
+      case DiaSemanaPrisma.DOMINGO:
+        return DiaSemana.DOMINGO;
+    }
+  }
+
+  private toDomainTurno(turno: TurnoPrisma): Turno {
+    switch (turno) {
+      case TurnoPrisma.MANANA:
+        return Turno.MANANA;
+      case TurnoPrisma.TARDE:
+        return Turno.TARDE;
+      case TurnoPrisma.NOCHE:
+        return Turno.NOCHE;
+    }
+  }
+
+  private toPrismaFrecuencia(frecuencia: FrecuenciaRuta): FrecuenciaRutaPrisma {
+    switch (frecuencia) {
+      case FrecuenciaRuta.SEMANAL:
+        return FrecuenciaRutaPrisma.SEMANAL;
+      case FrecuenciaRuta.QUINCENAL:
+        return FrecuenciaRutaPrisma.QUINCENAL;
+    }
+  }
+
+  private toPrismaDiaSemana(diaSemana: DiaSemana): DiaSemanaPrisma {
+    switch (diaSemana) {
+      case DiaSemana.LUNES:
+        return DiaSemanaPrisma.LUNES;
+      case DiaSemana.MARTES:
+        return DiaSemanaPrisma.MARTES;
+      case DiaSemana.MIERCOLES:
+        return DiaSemanaPrisma.MIERCOLES;
+      case DiaSemana.JUEVES:
+        return DiaSemanaPrisma.JUEVES;
+      case DiaSemana.VIERNES:
+        return DiaSemanaPrisma.VIERNES;
+      case DiaSemana.SABADO:
+        return DiaSemanaPrisma.SABADO;
+      case DiaSemana.DOMINGO:
+        return DiaSemanaPrisma.DOMINGO;
+    }
+  }
+
+  private toPrismaTurno(turno: Turno): TurnoPrisma {
+    switch (turno) {
+      case Turno.MANANA:
+        return TurnoPrisma.MANANA;
+      case Turno.TARDE:
+        return TurnoPrisma.TARDE;
+      case Turno.NOCHE:
+        return TurnoPrisma.NOCHE;
+    }
   }
 
   private toPrismaTime(hora: string): Date {
