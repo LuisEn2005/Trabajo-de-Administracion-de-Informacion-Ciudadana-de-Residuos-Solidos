@@ -61,6 +61,20 @@ export class PrismaContenedorRepository implements ContenedorRepository {
     private readonly mapper: IContenedorMapper,
   ) {}
 
+  mapearContenedor(registro: ContenedorPersistencia): Contenedor {
+    return new Contenedor(
+      registro.id,
+      registro.codigo,
+      registro.tipo,
+      registro.capacidad,
+      registro.estado,
+      registro.puntoRecoleccionId,
+      registro.fechaInstalacion,
+      registro.createdAt,
+      registro.updatedAt,
+    );
+  }
+
   async crear(datos: CrearContenedorDatos): Promise<Contenedor> {
     const contenedor = await this.prisma.contenedor.create({
       data: {
