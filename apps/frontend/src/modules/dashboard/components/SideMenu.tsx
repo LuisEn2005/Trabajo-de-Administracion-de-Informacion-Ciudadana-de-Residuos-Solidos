@@ -1,0 +1,68 @@
+import {
+  CalendarClock,
+  ClipboardList,
+  Container,
+  LayoutDashboard,
+  Map,
+  MapPin,
+  ShieldUser,
+  Truck,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth';
+import { rutaRequiereAutenticacion } from '../services/dashboard-data.service';
+import type { RutaDashboard } from '../types/dashboard.types';
+
+type ElementoMenu = {
+  etiqueta: string;
+  icono: LucideIcon;
+  ruta: RutaDashboard;
+};
+
+type SideMenuProps = {
+  rutaActual: RutaDashboard;
+};
+
+const elementosMenu: ElementoMenu[] = [
+  { etiqueta: 'Inicio', icono: LayoutDashboard, ruta: '/dashboard' },
+  { etiqueta: 'Rutas', icono: Map, ruta: '/dashboard/rutas' },
+  { etiqueta: 'Horarios', icono: CalendarClock, ruta: '/dashboard/horarios' },
+  { etiqueta: 'Puntos', icono: MapPin, ruta: '/dashboard/puntos' },
+  { etiqueta: 'Flota', icono: Truck, ruta: '/dashboard/flota' },
+  { etiqueta: 'Contenedores', icono: Container, ruta: '/dashboard/contenedores' },
+  { etiqueta: 'Asignaciones', icono: ClipboardList, ruta: '/dashboard/asignaciones' },
+  { etiqueta: 'Administradores', icono: ShieldUser, ruta: '/dashboard/administradores' },
+];
+
+function SideMenu({ rutaActual }: SideMenuProps) {
+  const { estaAutenticado } = useAuth();
+  const elementosVisibles = elementosMenu.filter(
+    (elemento) => estaAutenticado || !rutaRequiereAutenticacion(elemento.ruta),
+  );
+
+  return (
+    <nav className="flex-1 space-y-3 overflow-y-auto px-7 py-8" aria-label="Menú principal del sistema">
+      {elementosVisibles.map((elemento) => {
+        const Icono = elemento.icono;
+        const estaActivo = rutaActual === elemento.ruta;
+
+        return (
+          <NavLink
+            className={`flex items-center gap-4 rounded-xl px-5 py-4 text-sm font-bold transition ${
+              estaActivo ? 'bg-blue-600 text-white' : 'text-slate-200 hover:bg-white/10'
+            }`}
+            end
+            key={elemento.ruta}
+            to={elemento.ruta}
+          >
+            <Icono aria-hidden="true" size={20} />
+            {elemento.etiqueta}
+          </NavLink>
+        );
+      })}
+    </nav>
+  );
+}
+
+export default SideMenu;
