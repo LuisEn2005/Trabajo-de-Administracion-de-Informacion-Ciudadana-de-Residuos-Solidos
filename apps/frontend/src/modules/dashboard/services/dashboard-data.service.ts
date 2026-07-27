@@ -21,6 +21,13 @@ const rutasValidas: RutaDashboard[] = [
   '/dashboard/administradores',
 ];
 
+const rutasProtegidas: RutaDashboard[] = [
+  '/dashboard/flota',
+  '/dashboard/contenedores',
+  '/dashboard/asignaciones',
+  '/dashboard/administradores',
+];
+
 const rutas: RutaRecoleccion[] = [
   {
     id: 1,
@@ -156,6 +163,10 @@ export function obtenerRutaValida(rutaActual: string): RutaDashboard {
   }
 
   return '/dashboard';
+}
+
+export function rutaRequiereAutenticacion(ruta: RutaDashboard): boolean {
+  return rutasProtegidas.includes(ruta);
 }
 
 export function listarZonasGeograficas(): string[] {

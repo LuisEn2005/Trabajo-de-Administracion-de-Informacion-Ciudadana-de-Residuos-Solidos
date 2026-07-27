@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 type Caracteristica = {
   titulo: string;
   descripcion: string;
@@ -90,12 +92,12 @@ function InicioPage() {
               y recursos relacionados con la recolección de residuos sólidos.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <a
+              <Link
                 className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-black text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
-                href="/dashboard"
+                to="/dashboard"
               >
                 Ir a la app
-              </a>
+              </Link>
               <a
                 className="rounded-full border border-white/15 px-6 py-3 text-center text-sm font-bold text-white transition hover:border-emerald-300 hover:text-emerald-200"
                 href="#equipo"

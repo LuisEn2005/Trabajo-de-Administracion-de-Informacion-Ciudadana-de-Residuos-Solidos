@@ -1,13 +1,32 @@
 import { LockKeyhole, UserRound, X } from 'lucide-react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 type LoginModalProps = {
   onClose: () => void;
 };
 
 function LoginModal({ onClose }: LoginModalProps) {
-  function manejarEnvio(evento: FormEvent<HTMLFormElement>): void {
+  const { iniciarSesion } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [mensajeError, setMensajeError] = useState<string | null>(null);
+  const [estaEnviando, setEstaEnviando] = useState(false);
+
+  async function manejarEnvio(evento: FormEvent<HTMLFormElement>): Promise<void> {
     evento.preventDefault();
+    setMensajeError(null);
+    setEstaEnviando(true);
+
+    try {
+      await iniciarSesion({ email, password });
+      onClose();
+    } catch (error) {
+      setMensajeError(obtenerMensajeError(error));
+    } finally {
+      setEstaEnviando(false);
+    }
   }
 
   return (
@@ -39,48 +58,74 @@ function LoginModal({ onClose }: LoginModalProps) {
         </div>
 
         <form className="mt-7 space-y-5" onSubmit={manejarEnvio}>
-          <label className="block" htmlFor="usuario">
-            <span className="text-sm font-bold text-slate-700">Usuario</span>
+          <label className="block" htmlFor="email">
+            <span className="text-sm font-bold text-slate-700">Correo electrónico</span>
             <span className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
               <UserRound aria-hidden="true" className="text-slate-400" size={18} />
               <input
+                autoComplete="email"
                 className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                id="usuario"
-                name="usuario"
-                placeholder="usuario@is1.local"
-                type="text"
+                disabled={estaEnviando}
+                id="email"
+                name="email"
+                onChange={(evento) => setEmail(evento.target.value)}
+                placeholder="admin_test@gmail.com"
+                required
+                type="email"
+                value={email}
               />
             </span>
           </label>
 
-          <label className="block" htmlFor="contrasena">
+          <label className="block" htmlFor="password">
             <span className="text-sm font-bold text-slate-700">Contraseña</span>
             <span className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
               <LockKeyhole aria-hidden="true" className="text-slate-400" size={18} />
               <input
+                autoComplete="current-password"
                 className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                id="contrasena"
-                name="contrasena"
+                disabled={estaEnviando}
+                id="password"
+                name="password"
+                onChange={(evento) => setPassword(evento.target.value)}
                 placeholder="••••••••"
+                required
                 type="password"
+                value={password}
               />
             </span>
           </label>
 
+          {mensajeError && (
+            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {mensajeError}
+            </p>
+          )}
+
           <button
-            className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
+            aria-busy={estaEnviando}
+            className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+            disabled={estaEnviando}
             type="submit"
           >
-            Iniciar sesión
+            {estaEnviando ? 'Validando credenciales...' : 'Iniciar sesión'}
           </button>
         </form>
 
         <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-xs leading-5 text-slate-500">
-          Este formulario es una vista mock. La autenticación real debe conectarse luego con la API REST.
+          El formulario consume la API REST del backend en <strong>POST /api/v1/auth/login</strong> y guarda el token JWT para las solicitudes protegidas.
         </p>
       </section>
     </div>
   );
+}
+
+function obtenerMensajeError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'No se pudo iniciar sesión. Inténtalo nuevamente.';
 }
 
 export default LoginModal;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { AlertTriangle, UserRound } from 'lucide-react';
+import { AlertTriangle, LogOut, UserRound } from 'lucide-react';
 import LoginModal from '../../auth/components/LoginModal';
+import { useAuth } from '../../auth/hooks/useAuth';
 import SideMenu from './SideMenu';
 import type { RutaDashboard } from '../types/dashboard.types';
 
@@ -9,6 +10,7 @@ type PortalSidebarProps = {
 };
 
 function PortalSidebar({ rutaActual }: PortalSidebarProps) {
+  const { administrador, cerrarSesion, estaAutenticado, estaCargandoSesion } = useAuth();
   const [estaAbiertoLogin, setEstaAbiertoLogin] = useState(false);
 
   function abrirLogin(): void {
@@ -32,19 +34,45 @@ function PortalSidebar({ rutaActual }: PortalSidebarProps) {
         <SideMenu rutaActual={rutaActual} />
 
         <div className="border-t border-white/10 px-7 py-5">
-          <button
-            className="flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            onClick={abrirLogin}
-            type="button"
-          >
-            <span className="flex size-10 items-center justify-center rounded-full bg-slate-600">
-              <UserRound aria-hidden="true" size={20} />
-            </span>
-            <span>
-              <span className="block font-black">Usuario Invitado</span>
-              <span className="block text-sm text-slate-300">Iniciar sesión</span>
-            </span>
-          </button>
+          {estaAutenticado && administrador ? (
+            <div className="space-y-3 rounded-2xl bg-white/5 p-2">
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 items-center justify-center rounded-full bg-blue-600">
+                  <UserRound aria-hidden="true" size={20} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-black">{administrador.nombre}</span>
+                  <span className="block truncate text-sm text-slate-300">{administrador.email}</span>
+                </span>
+              </div>
+
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-slate-100 transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onClick={cerrarSesion}
+                type="button"
+              >
+                <LogOut aria-hidden="true" size={16} />
+                Cerrar sesión
+              </button>
+            </div>
+          ) : (
+            <button
+              className="flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={estaCargandoSesion}
+              onClick={abrirLogin}
+              type="button"
+            >
+              <span className="flex size-10 items-center justify-center rounded-full bg-slate-600">
+                <UserRound aria-hidden="true" size={20} />
+              </span>
+              <span>
+                <span className="block font-black">Usuario Invitado</span>
+                <span className="block text-sm text-slate-300">
+                  {estaCargandoSesion ? 'Validando sesión' : 'Iniciar sesión'}
+                </span>
+              </span>
+            </button>
+          )}
         </div>
       </aside>
 

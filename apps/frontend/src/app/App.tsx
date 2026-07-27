@@ -1,14 +1,15 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
 import DashboardPage from '../modules/dashboard/pages/DashboardPage';
 import InicioPage from '../modules/inicio/pages/InicioPage';
 
 function App() {
-  const rutaActual = window.location.pathname;
-
-  if (rutaActual.startsWith('/dashboard')) {
-    return <DashboardPage rutaActual={rutaActual} />;
-  }
-
-  return <InicioPage />;
+  return (
+    <Routes>
+      <Route element={<InicioPage />} path="/" />
+      <Route element={<DashboardPage />} path="/dashboard/*" />
+      <Route element={<Navigate replace to="/" />} path="*" />
+    </Routes>
+  );
 }
 
 export default App;
