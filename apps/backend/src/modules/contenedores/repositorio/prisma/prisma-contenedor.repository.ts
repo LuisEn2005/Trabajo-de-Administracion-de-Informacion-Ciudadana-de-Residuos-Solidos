@@ -25,10 +25,8 @@ export interface ContenedorPersistencia {
 }
 
 @Injectable()
-export class PrismaContenedorRepository implements ContenedorRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  mapearContenedor(registro: ContenedorPersistencia): Contenedor {
+export class ContenedorMapper {
+  toDomain(registro: ContenedorPersistencia): Contenedor {
     return new Contenedor(
       registro.id,
       registro.codigo,
@@ -42,6 +40,23 @@ export class PrismaContenedorRepository implements ContenedorRepository {
     );
   }
 
+  fromPrisma(contenedor: any): ContenedorPersistencia {
+    return {
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    };
+  }
+}
+
+@Injectable()
+export class PrismaContenedorRepository implements ContenedorRepository {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mapper: ContenedorMapper,
+  ) {}
+
   async crear(datos: CrearContenedorDatos): Promise<Contenedor> {
     const contenedor = await this.prisma.contenedor.create({
       data: {
@@ -54,38 +69,23 @@ export class PrismaContenedorRepository implements ContenedorRepository {
       },
     });
 
-    return this.mapearContenedor({
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    });
+    return this.mapper.toDomain(this.mapper.fromPrisma(contenedor));
   }
 
   async buscarTodos(): Promise<Contenedor[]> {
     const contenedores = await this.prisma.contenedor.findMany();
-    return contenedores.map((c: any) =>
-      this.mapearContenedor({
-        ...c,
-        tipo: c.tipo as TipoContenedor,
-        estado: c.estado as EstadoContenedor,
-        capacidad: Number(c.capacidad),
-      })
+    return contenedores.map((c) =>
+      this.mapper.toDomain(this.mapper.fromPrisma(c)),
     );
   }
 
-  async buscarPorId(id: number): Promise<Contenedor | null> {
+   async buscarPorId(id: number): Promise<Contenedor | null> {
     const contenedor = await this.prisma.contenedor.findUnique({
       where: { id },
     });
 
     if (!contenedor) return null;
-    return this.mapearContenedor({
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    });
+    return this.mapper.toDomain(this.mapper.fromPrisma(contenedor));
   }
 
   async actualizar(id: number, datos: ActualizarContenedorDatos): Promise<Contenedor> {
@@ -101,12 +101,7 @@ export class PrismaContenedorRepository implements ContenedorRepository {
       },
     });
 
-    return this.mapearContenedor({
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    });
+    return this.mapper.toDomain(this.mapper.fromPrisma(contenedor));
   }
 
   async eliminar(id: number): Promise<void> {
@@ -120,28 +115,18 @@ export class PrismaContenedorRepository implements ContenedorRepository {
       where: { puntoRecoleccionId: puntoId },
     });
 
-    return contenedores.map((c: any) =>
-      this.mapearContenedor({
-        ...c,
-        tipo: c.tipo as TipoContenedor,
-        estado: c.estado as EstadoContenedor,
-        capacidad: Number(c.capacidad),
-      })
+    return contenedores.map((c) =>
+      this.mapper.toDomain(this.mapper.fromPrisma(c)),
     );
   }
 
-  async cambiarEstado(id: number, estado: EstadoContenedor): Promise<Contenedor> {
+ async cambiarEstado(id: number, estado: EstadoContenedor): Promise<Contenedor> {
     const contenedor = await this.prisma.contenedor.update({
       where: { id },
       data: { estado },
     });
 
-    return this.mapearContenedor({
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    });
+    return this.mapper.toDomain(this.mapper.fromPrisma(contenedor));
   }
 
   async trasladarAPunto(id: number, puntoRecoleccionId: number | null): Promise<Contenedor> {
@@ -150,15 +135,10 @@ export class PrismaContenedorRepository implements ContenedorRepository {
       data: { puntoRecoleccionId },
     });
 
-    return this.mapearContenedor({
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    });
+    return this.mapper.toDomain(this.mapper.fromPrisma(contenedor));
   }
 
-  async obtenerResumenInventario(): Promise<ResumenInventarioContenedores> {
+   async obtenerResumenInventario(): Promise<ResumenInventarioContenedores> {
     const contenedores = await this.prisma.contenedor.findMany();
 
     const total = contenedores.length;
