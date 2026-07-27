@@ -1,34 +1,50 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { Public } from '../../../../shared/presentacion/decorators/public.decorator';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, SetMetadata } from '@nestjs/common';
+import { PuntosRecoleccionService } from '../../interfaz/services/puntos-recoleccion.service';
+import { CrearPuntoRecoleccionDto } from '../../interfaz/dto/crear-punto-recoleccion.dto';
 import { ActualizarPuntoRecoleccionDto } from '../../interfaz/dto/actualizar-punto-recoleccion.dto';
 import { CambiarEstadoPuntoRecoleccionDto } from '../../interfaz/dto/cambiar-estado-punto-recoleccion.dto';
-import { CrearPuntoRecoleccionDto } from '../../interfaz/dto/crear-punto-recoleccion.dto';
-import { PuntosRecoleccionService } from '../../interfaz/services/puntos-recoleccion.service';
 
-@Controller('v1/puntos-recoleccion')
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+
+@Controller('puntos-recoleccion')
 export class PuntosRecoleccionController {
-  constructor(private readonly puntosRecoleccionService: PuntosRecoleccionService) {}
+  constructor(private readonly service: PuntosRecoleccionService) { }
 
   @Public()
   @Get()
   buscarTodos() {
-    return this.puntosRecoleccionService.buscarTodos();
+    return this.service.buscarTodos();
   }
 
   @Public()
   @Get(':id')
   buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.puntosRecoleccionService.buscarPorId(id);
+    return this.service.buscarPorId(id);
+  }
+
+  @Public()
+  @Get(':id/mapa')
+  mapearPunto(@Param('id', ParseIntPipe) id: number) {
+    return this.service.mapearPunto(id);
   }
 
   @Post()
   crear(@Body() dto: CrearPuntoRecoleccionDto) {
-    return this.puntosRecoleccionService.crear(dto);
+    return this.service.crear(dto);
   }
 
-  @Patch(':id')
-  actualizar(@Param('id', ParseIntPipe) id: number, @Body() dto: ActualizarPuntoRecoleccionDto) {
-    return this.puntosRecoleccionService.actualizar(id, dto);
+  @Put(':id')
+  actualizar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ActualizarPuntoRecoleccionDto,
+  ) {
+    return this.service.actualizar(id, dto);
+  }
+
+  @Delete(':id')
+  eliminar(@Param('id', ParseIntPipe) id: number) {
+    return this.service.eliminar(id);
   }
 
   @Patch(':id/estado')
@@ -36,17 +52,6 @@ export class PuntosRecoleccionController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CambiarEstadoPuntoRecoleccionDto,
   ) {
-    return this.puntosRecoleccionService.cambiarEstado(id, dto);
-  }
-
-  @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
-    return this.puntosRecoleccionService.eliminar(id);
-  }
-
-  @Public()
-  @Get(':id/contenedores')
-  buscarContenedores(@Param('id', ParseIntPipe) id: number) {
-    return this.puntosRecoleccionService.buscarContenedores(id);
+    return this.service.cambiarEstado(id, dto.activo);
   }
 }

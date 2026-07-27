@@ -39,11 +39,11 @@ import { PrismaAdministradorRepository } from './repositorio/prisma/prisma-admin
       provide: ADMINISTRADOR_REPOSITORY,
       useClass: PrismaAdministradorRepository,
     },
-    {
+    /* {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
-    },
+    }, */
   ],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
