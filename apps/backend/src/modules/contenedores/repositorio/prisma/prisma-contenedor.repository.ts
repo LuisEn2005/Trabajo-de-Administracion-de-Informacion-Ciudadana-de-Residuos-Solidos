@@ -28,73 +28,167 @@ export interface ContenedorPersistencia {
 export class PrismaContenedorRepository implements ContenedorRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  mapearContenedor(registro: ContenedorPersistencia): Contenedor {
+    return new Contenedor(
+      registro.id,
+      registro.codigo,
+      registro.tipo,
+      registro.capacidad,
+      registro.estado,
+      registro.puntoRecoleccionId,
+      registro.fechaInstalacion,
+      registro.createdAt,
+      registro.updatedAt,
+    );
+  }
+
   async crear(datos: CrearContenedorDatos): Promise<Contenedor> {
-    void datos;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la creación de contenedores.
-    throw new NotImplementedException('La creación de contenedores está pendiente');
+    const contenedor = await this.prisma.contenedor.create({
+      data: {
+        codigo: datos.codigo,
+        tipo: datos.tipo,
+        capacidad: datos.capacidad,
+        estado: datos.estado || EstadoContenedor.OPERATIVO,
+        puntoRecoleccionId: datos.puntoRecoleccionId || null,
+        fechaInstalacion: datos.fechaInstalacion || new Date(),
+      },
+    });
+
+    return this.mapearContenedor({
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    });
   }
 
   async buscarTodos(): Promise<Contenedor[]> {
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la consulta de contenedores.
-    throw new NotImplementedException('La consulta de contenedores está pendiente');
+    const contenedores = await this.prisma.contenedor.findMany();
+    return contenedores.map((c: any) =>
+      this.mapearContenedor({
+        ...c,
+        tipo: c.tipo as TipoContenedor,
+        estado: c.estado as EstadoContenedor,
+        capacidad: Number(c.capacidad),
+      })
+    );
   }
 
   async buscarPorId(id: number): Promise<Contenedor | null> {
-    void id;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la consulta de contenedor por id.
-    throw new NotImplementedException('La consulta de contenedor por id está pendiente');
+    const contenedor = await this.prisma.contenedor.findUnique({
+      where: { id },
+    });
+
+    if (!contenedor) return null;
+    return this.mapearContenedor({
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    });
   }
 
   async actualizar(id: number, datos: ActualizarContenedorDatos): Promise<Contenedor> {
-    void id;
-    void datos;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la actualización de contenedores.
-    throw new NotImplementedException('La actualización de contenedores está pendiente');
+    const contenedor = await this.prisma.contenedor.update({
+      where: { id },
+      data: {
+        codigo: datos.codigo,
+        tipo: datos.tipo,
+        capacidad: datos.capacidad,
+        estado: datos.estado,
+        puntoRecoleccionId: datos.puntoRecoleccionId,
+        fechaInstalacion: datos.fechaInstalacion,
+      },
+    });
+
+    return this.mapearContenedor({
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    });
   }
 
   async eliminar(id: number): Promise<void> {
-    void id;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la eliminación de contenedores.
-    throw new NotImplementedException('La eliminación de contenedores está pendiente');
+    await this.prisma.contenedor.delete({
+      where: { id },
+    });
   }
 
   async buscarPorPunto(puntoId: number): Promise<Contenedor[]> {
-    void puntoId;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar la consulta de contenedores por punto.
-    throw new NotImplementedException('La consulta de contenedores por punto está pendiente');
+    const contenedores = await this.prisma.contenedor.findMany({
+      where: { puntoRecoleccionId: puntoId },
+    });
+
+    return contenedores.map((c: any) =>
+      this.mapearContenedor({
+        ...c,
+        tipo: c.tipo as TipoContenedor,
+        estado: c.estado as EstadoContenedor,
+        capacidad: Number(c.capacidad),
+      })
+    );
   }
 
   async cambiarEstado(id: number, estado: EstadoContenedor): Promise<Contenedor> {
-    void id;
-    void estado;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar el cambio de estado del contenedor.
-    throw new NotImplementedException('El cambio de estado del contenedor está pendiente');
+    const contenedor = await this.prisma.contenedor.update({
+      where: { id },
+      data: { estado },
+    });
+
+    return this.mapearContenedor({
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    });
   }
 
   async trasladarAPunto(id: number, puntoRecoleccionId: number | null): Promise<Contenedor> {
-    void id;
-    void puntoRecoleccionId;
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar el traslado de contenedor a un punto.
-    throw new NotImplementedException('El traslado de contenedor está pendiente');
+    const contenedor = await this.prisma.contenedor.update({
+      where: { id },
+      data: { puntoRecoleccionId },
+    });
+
+    return this.mapearContenedor({
+      ...contenedor,
+      tipo: contenedor.tipo as TipoContenedor,
+      estado: contenedor.estado as EstadoContenedor,
+      capacidad: Number(contenedor.capacidad),
+    });
   }
 
   async obtenerResumenInventario(): Promise<ResumenInventarioContenedores> {
-    void this.prisma;
-    // TODO(S2-INTEGRANTE-3): implementar el resumen interno del inventario.
-    throw new NotImplementedException('El resumen interno del inventario está pendiente');
-  }
+    const contenedores = await this.prisma.contenedor.findMany();
 
-  mapearContenedor(registro: ContenedorPersistencia): Contenedor {
-    void registro;
-    // TODO(S2-INTEGRANTE-3): implementar el mapeo de persistencia a dominio.
-    throw new NotImplementedException('El mapeo de contenedor está pendiente');
+    const total = contenedores.length;
+
+    const porEstado: Record<EstadoContenedor, number> = {
+      [EstadoContenedor.OPERATIVO]: 0,
+      [EstadoContenedor.LLENO]: 0,
+      [EstadoContenedor.DANADO]: 0,
+      [EstadoContenedor.EN_MANTENIMIENTO]: 0,
+      [EstadoContenedor.RETIRADO]: 0,
+    };
+
+    const porTipo: Record<TipoContenedor, number> = {
+      [TipoContenedor.ORGANICO]: 0,
+      [TipoContenedor.INORGANICO]: 0,
+      [TipoContenedor.RECICLABLE]: 0,
+      [TipoContenedor.MIXTO]: 0,
+    };
+
+    for (const c of contenedores) {
+      const estadoKey = c.estado as EstadoContenedor;
+      const tipoKey = c.tipo as TipoContenedor;
+      porEstado[estadoKey] = (porEstado[estadoKey] || 0) + 1;
+      porTipo[tipoKey] = (porTipo[tipoKey] || 0) + 1;
+    }
+
+    return {
+      total,
+      porEstado,
+      porTipo,
+    };
   }
 }
