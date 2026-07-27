@@ -134,19 +134,6 @@ export class PrismaRutaRepository implements RutaRepository {
 }
 ```
 
-## 3. SonarLint
-
-No encontré capturas ni reportes de SonarLint guardados en el repositorio. Por eso no documento bugs, code smells ni vulnerabilidades como si hubieran sido detectados por la herramienta.
-
-| Evidencia | Estado |
-|---|---|
-| Bugs detectados por SonarLint | Pendiente |
-| Code smells detectados por SonarLint | Pendiente |
-| Vulnerabilidades detectadas por SonarLint | Pendiente |
-| Captura o reporte de SonarLint | Pendiente |
-
-> Pendiente: agregar captura o reporte real de SonarLint del módulo de gestión de rutas.
-
-## 4. Resultado
+## 3. Resultado
 
 Con mi implementación del CRUD de rutas apliqué prácticas de codificación legible en nombres, funciones, comentarios, estructura del código, objetos, manejo de errores y clases. Queda pendiente agregar evidencia real de SonarLint si el laboratorio lo solicita como comprobación externa.

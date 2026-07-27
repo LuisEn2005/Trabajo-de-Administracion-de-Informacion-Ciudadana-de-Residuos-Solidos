@@ -187,24 +187,7 @@ La implementación se relaciona con las capas enseñadas en clase en este orden:
 
 `PrismaRutaRepository` se ubica en la parte de repositorios y convierte los datos obtenidos mediante Prisma hacia la entidad `Ruta` del dominio.
 
-### 5. Evidencias
-
-No encontré imágenes dentro de la carpeta `docs/evidencias/Postigo Cabana Juan Carlos`.
-
-Pendientes:
-
-- Pendiente: agregar captura de SonarLint.
-- Pendiente: agregar captura de pruebas manuales del endpoint `GET /api/v1/rutas`.
-- Pendiente: agregar captura de pruebas manuales de creación, actualización y eliminación de rutas.
-- Pendiente: agregar evidencia visual del análisis de estilos de programación, si el laboratorio lo solicita.
-
-Cuando se agreguen imágenes, deben enlazarse con rutas relativas desde este README, por ejemplo:
-
-```md
-![Análisis del método buscarTodos](./imagenes/calidad-codigo-buscar-todos.jpg)
-```
-
-### 6. Resultado del laboratorio 10
+### 5. Resultado del laboratorio 10
 
 En este avance identifiqué estilos de programación aplicados en una implementación real del CRUD de rutas. El código muestra consulta persistente, manejo de excepciones, transformación de datos, organización por objetos y exposición REST del recurso rutas.
 
