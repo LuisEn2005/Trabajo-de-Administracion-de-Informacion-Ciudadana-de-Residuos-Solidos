@@ -1,7 +1,7 @@
-import { IsEnum } from 'class-validator';
-import { EstadoPuntoRecoleccion } from '../../dominio/entities/punto-recoleccion.entity';
+import { IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class CambiarEstadoPuntoRecoleccionDto {
-  @IsEnum(EstadoPuntoRecoleccion)
-  estado!: EstadoPuntoRecoleccion;
+  @IsBoolean()
+  @IsNotEmpty()
+  activo: boolean;
 }

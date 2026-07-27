@@ -10,7 +10,6 @@ import { EstadoPuntoRecoleccion, PuntoRecoleccion } from '@prisma/client';
 export class PrismaPuntoRecoleccionRepository implements PuntoRecoleccionRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  // Mapeador pedido en la especificación
   mapearPunto(punto: PuntoRecoleccion): PuntoRecoleccionEntity {
     return new PuntoRecoleccionEntity({
       ...punto,

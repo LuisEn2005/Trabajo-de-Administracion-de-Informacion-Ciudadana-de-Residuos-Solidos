@@ -66,26 +66,29 @@ Se implementó una **Arquitectura Hexagonal (Puertos y Adaptadores) con principi
 
 ## Estructura de Archivos Creados / Actualizados
 
+### 1. Ubicación Independiente del Módulo
+El módulo fue movido a su propia ruta aislada dentro de `apps/backend/src/modules/puntos-recoleccion/` (separándolo de `gestion-rutas`):
+
 ```text
-apps/backend/src/modules/gestion-rutas/
+apps/backend/src/modules/puntos-recoleccion/
 ├── dominio/
 │   └── entities/
-│       └── punto-recoleccion.entity.ts         # Entidad de dominio PuntoRecoleccionEntity
+│       └── punto-recoleccion.entity.ts         # Entidad de dominio con Enum EstadoPuntoRecoleccion
 ├── interfaz/
 │   ├── dto/
-│   │   ├── crear-punto-recoleccion.dto.ts      # DTO para la creación de puntos
-│   │   └── actualizar-punto-recoleccion.dto.ts # DTOs para actualización parcial y cambio de estado
+│   │   ├── crear-punto-recoleccion.dto.ts      # DTO de creación
+│   │   ├── actualizar-punto-recoleccion.dto.ts # DTO de actualización
+│   │   └── cambiar-estado-punto-recoleccion.dto.ts # DTO para cambiar estado (activo/inactivo)
 │   └── services/
-│       └── puntos-recoleccion.service.ts       # Servicio de casos de uso (PuntosRecoleccionService)
+│       └── puntos-recoleccion.service.ts       # Caso de uso (PuntosRecoleccionService)
 ├── presentacion/
 │   └── controllers/
 │       └── puntos-recoleccion.controller.ts    # Controlador REST (PuntosRecoleccionController)
 ├── repositorio/
-│   ├── punto-recoleccion.repository.ts         # Interfaz puerto PuntoRecoleccionRepository
+│   ├── punto-recoleccion.repository.ts         # Interfaz y token PUNTO_RECOLECCION_REPOSITORY
 │   └── prisma/
-│       └── prisma-punto-recoleccion.repository.ts # Adaptador de Prisma (PrismaPuntoRecoleccionRepository)
-└── gestion-rutas.module.ts                     # Registro de controladores, servicios y proveedores
-```
+│       └── prisma-punto-recoleccion.repository.ts # Adaptador Prisma con mapeo Decimal -> Number
+└── puntos-recoleccion.module.ts                # Registro y exportación de proveedores
 
 ---
 
@@ -137,9 +140,18 @@ Ruta base: `/api/puntos-recoleccion`
 
 ---
 
+### 3. Cambios Clave en Entidad y Adaptador Prisma
+
+* **Mapeo de Estados (`EstadoPuntoRecoleccion`)**:
+  Se integró el enum de Prisma (`ACTIVO`, `INACTIVO`) en la entidad de dominio y en el repositorio, permitiendo mapear la propiedad lógica `activo: boolean` hacia el enum persistido en base de datos.
+* **Firma del Constructor de `PuntoRecoleccion`**:
+  Se ajustó la instanciación directa posicional (`id`, `nombre`, `direccion`, `referencia`, `latitud`, `longitud`, `estado`, `createdAt`, `updatedAt`) respetando los tipos devueltos por el cliente de Prisma.
+* **Método de Utilidad Geográfica (`mapearPunto`)**:
+  Se añadió a la entidad el método `mapearPunto()` para generar un objeto con las coordenadas formateadas y una URL hacia Google Maps.
+
 ### Endpoints Protegidos (Requieren Autenticación / Bearer Token)
 
-#### 3. Crear un punto de recolección
+#### 4. Crear un punto de recolección
 - **Método:** `POST`
 - **Ruta:** `/puntos-recoleccion`
 - **Headers:** `Authorization: Bearer <TOKEN>`
@@ -155,7 +167,7 @@ Ruta base: `/api/puntos-recoleccion`
   }
   ```
 
-#### 4. Actualizar un punto de recolección
+#### 5. Actualizar un punto de recolección
 - **Método:** `PATCH`
 - **Ruta:** `/puntos-recoleccion/:id`
 - **Headers:** `Authorization: Bearer <TOKEN>`
@@ -167,7 +179,7 @@ Ruta base: `/api/puntos-recoleccion`
   }
   ```
 
-#### 5. Cambiar estado de un punto de recolección
+#### 6. Cambiar estado de un punto de recolección
 - **Método:** `PATCH`
 - **Ruta:** `/puntos-recoleccion/:id/estado`
 - **Headers:** `Authorization: Bearer <TOKEN>`
@@ -178,12 +190,47 @@ Ruta base: `/api/puntos-recoleccion`
   }
   ```
 
-#### 6. Eliminar un punto de recolección
+#### 7. Eliminar un punto de recolección
 - **Método:** `DELETE`
 - **Ruta:** `/puntos-recoleccion/:id`
 - **Headers:** `Authorization: Bearer <TOKEN>`
 
 ---
+
+Para permitir que otros módulos de la aplicación (como `ProgramacionPublicaModule`) puedan consumir el repositorio de puntos de recolección:
+
+**Exportación de Proveedores (`puntos-recoleccion.module.ts`)**:
+   ```typescript
+   @Module({
+     imports: [PrismaModule],
+     controllers: [PuntosRecoleccionController],
+     providers: [
+       PuntosRecoleccionService,
+       {
+         provide: PUNTO_RECOLECCION_REPOSITORY,
+         useClass: PrismaPuntoRecoleccionRepository,
+       },
+     ],
+     exports: [
+       PuntosRecoleccionService,
+       PUNTO_RECOLECCION_REPOSITORY,
+     ],
+   })
+   export class PuntosRecoleccionModule {}
+
+### Nuevos Endpoints y Rutas Actualizadas
+
+Ruta base: `/puntos-recoleccion`
+
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/puntos-recoleccion` | Público | Obtiene todos los puntos de recolección. |
+| `GET` | `/puntos-recoleccion/:id` | Público | Obtiene un punto de recolección por su ID. |
+| `GET` | `/puntos-recoleccion/:id/mapa` | Público | Devuelve las coordenadas y enlace a Google Maps del punto. |
+| `POST` | `/puntos-recoleccion` | Autenticado | Crea un nuevo punto de recolección. |
+| `PUT` | `/puntos-recoleccion/:id` | Autenticado | Actualiza los datos de un punto de recolección. |
+| `PATCH` | `/puntos-recoleccion/:id/estado` | Autenticado | Cambia el estado (`activo: boolean`) del punto. |
+| `DELETE` | `/puntos-recoleccion/:id` | Autenticado | Elimina un punto de recolección por su ID. |
 
 ## Dependencias Requeridas
 Asegurarse de contar con la librería `@nestjs/mapped-types` instalada para el funcionamiento de `PartialType`:

@@ -20,6 +20,7 @@ import { PrismaModule } from './shared/repositorio/prisma/prisma.module';
     PuntosRecoleccionModule,
     AsignacionesModule,
     ProgramacionPublicaModule,
+    PuntosRecoleccionModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

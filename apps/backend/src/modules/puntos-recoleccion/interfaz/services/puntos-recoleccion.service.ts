@@ -1,48 +1,50 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Contenedor } from '../../../contenedores/dominio/entities/contenedor.entity';
-import { ContenedoresService } from '../../../contenedores/interfaz/services/contenedores.service';
-import { PuntoRecoleccion } from '../../dominio/entities/punto-recoleccion.entity';
+import { NotFoundError } from '../../../../shared/domain/domain-error';
+import { PuntoRecoleccion, CoordenadasGeograficas } from '../../dominio/entities/punto-recoleccion.entity';
 import {
-  PUNTO_RECOLECCION_REPOSITORY,
   PuntoRecoleccionRepository,
+  PUNTO_RECOLECCION_REPOSITORY,
+  CrearPuntoRecoleccionDatos,
+  ActualizarPuntoRecoleccionDatos,
 } from '../../repositorio/punto-recoleccion.repository';
-import { ActualizarPuntoRecoleccionDto } from '../dto/actualizar-punto-recoleccion.dto';
-import { CambiarEstadoPuntoRecoleccionDto } from '../dto/cambiar-estado-punto-recoleccion.dto';
-import { CrearPuntoRecoleccionDto } from '../dto/crear-punto-recoleccion.dto';
 
 @Injectable()
 export class PuntosRecoleccionService {
   constructor(
     @Inject(PUNTO_RECOLECCION_REPOSITORY)
-    private readonly puntoRecoleccionRepository: PuntoRecoleccionRepository,
-    private readonly contenedoresService: ContenedoresService,
-  ) {}
+    private readonly repository: PuntoRecoleccionRepository,
+  ) { }
 
-  crear(dto: CrearPuntoRecoleccionDto): Promise<PuntoRecoleccion> {
-    return this.puntoRecoleccionRepository.crear(dto);
+  async crear(datos: CrearPuntoRecoleccionDatos): Promise<PuntoRecoleccion> {
+    return this.repository.crear(datos);
   }
 
-  buscarTodos(): Promise<PuntoRecoleccion[]> {
-    return this.puntoRecoleccionRepository.buscarTodos();
+  async buscarTodos(): Promise<PuntoRecoleccion[]> {
+    return this.repository.buscarTodos();
   }
 
-  buscarPorId(id: number): Promise<PuntoRecoleccion | null> {
-    return this.puntoRecoleccionRepository.buscarPorId(id);
+  async buscarPorId(id: number): Promise<PuntoRecoleccion> {
+    const punto = await this.repository.buscarPorId(id);
+    if (!punto) {
+      throw new NotFoundError(`Punto de recolección ${id} no encontrado.`);
+    }
+    return punto;
   }
 
-  actualizar(id: number, dto: ActualizarPuntoRecoleccionDto): Promise<PuntoRecoleccion> {
-    return this.puntoRecoleccionRepository.actualizar(id, dto);
+  async actualizar(id: number, datos: ActualizarPuntoRecoleccionDatos): Promise<PuntoRecoleccion> {
+    return this.repository.actualizar(id, datos);
   }
 
-  eliminar(id: number): Promise<void> {
-    return this.puntoRecoleccionRepository.eliminar(id);
+  async eliminar(id: number): Promise<void> {
+    return this.repository.eliminar(id);
   }
 
-  cambiarEstado(id: number, dto: CambiarEstadoPuntoRecoleccionDto): Promise<PuntoRecoleccion> {
-    return this.puntoRecoleccionRepository.cambiarEstado(id, dto.estado);
+  async cambiarEstado(id: number, activo: boolean): Promise<PuntoRecoleccion> {
+    return this.repository.cambiarEstado(id, activo);
   }
 
-  buscarContenedores(id: number): Promise<Contenedor[]> {
-    return this.contenedoresService.buscarPorPunto(id);
+  async mapearPunto(id: number): Promise<CoordenadasGeograficas> {
+    const punto = await this.buscarPorId(id);
+    return punto.mapearPunto();
   }
 }

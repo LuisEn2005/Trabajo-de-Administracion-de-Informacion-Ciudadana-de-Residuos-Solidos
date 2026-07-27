@@ -1,37 +1,25 @@
-import {
-  IsEnum,
-  IsLatitude,
-  IsLongitude,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { EstadoPuntoRecoleccion } from '../../dominio/entities/punto-recoleccion.entity';
+import { IsBoolean, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CrearPuntoRecoleccionDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120)
-  nombre!: string;
+  @MaxLength(100)
+  nombre: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
-  direccion!: string;
-
   @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @MaxLength(255)
   referencia?: string;
 
   @IsLatitude()
-  latitud!: number;
+  @IsNotEmpty()
+  latitud: number;
 
   @IsLongitude()
-  longitud!: number;
+  @IsNotEmpty()
+  longitud: number;
 
+  @IsBoolean()
   @IsOptional()
-  @IsEnum(EstadoPuntoRecoleccion)
-  estado?: EstadoPuntoRecoleccion;
+  activo?: boolean;
 }
