@@ -54,47 +54,11 @@ export class ContenedorMapper implements IContenedorMapper {
 }
 
 @Injectable()
-<<<<<<< HEAD
 export class PrismaContenedorRepository implements ContenedorRepository {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(CONTENEDOR_MAPPER_TOKEN) 
+    @Inject(CONTENEDOR_MAPPER_TOKEN)
     private readonly mapper: IContenedorMapper,
-  ) {}
-
-  mapearContenedor(registro: ContenedorPersistencia): Contenedor {
-=======
-export class ContenedorMapper {
-  toDomain(registro: ContenedorPersistencia): Contenedor {
->>>>>>> d490033 (Aplicacion de principio SRP en repositorio de contenedores)
-    return new Contenedor(
-      registro.id,
-      registro.codigo,
-      registro.tipo,
-      registro.capacidad,
-      registro.estado,
-      registro.puntoRecoleccionId,
-      registro.fechaInstalacion,
-      registro.createdAt,
-      registro.updatedAt,
-    );
-  }
-
-  fromPrisma(contenedor: any): ContenedorPersistencia {
-    return {
-      ...contenedor,
-      tipo: contenedor.tipo as TipoContenedor,
-      estado: contenedor.estado as EstadoContenedor,
-      capacidad: Number(contenedor.capacidad),
-    };
-  }
-}
-
-@Injectable()
-export class PrismaContenedorRepository implements ContenedorRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly mapper: ContenedorMapper,
   ) {}
 
   async crear(datos: CrearContenedorDatos): Promise<Contenedor> {
