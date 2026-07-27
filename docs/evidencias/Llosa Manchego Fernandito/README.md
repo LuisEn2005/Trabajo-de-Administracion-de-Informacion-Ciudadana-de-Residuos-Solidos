@@ -1,87 +1,82 @@
-# Evidencias - Fernando Llosa Manchego
+# Evidencia de Desarrollo — Sprint 1 y Sprint 2
+**Desarrollador:** Fernando Llosa Manchego  
+**Proyecto:** Sistema de Gestión e Inspección de Rutas y Servicios Públicos (`apps/backend`)
 
-## Resumen general del avance
+---
 
-| Sprint | Modulo | Responsabilidad | Archivo de detalle |
-|---|---|---|---|
-| Sprint 1 | Consulta de horarios | Consultar horarios | [`SPRINT_1.md`](./SPRINT_1.md) |
-| Sprint 2 | Programacion publica | Consultas publicas integradas sin duplicar CRUD | [`SPRINT_2.md`](./SPRINT_2.md) |
+## 📌 Sprint 1 — Consulta de Horarios de Rutas
 
-## Participacion solicitada por el docente
+### 🛠️ Descripción General
+Durante el **Sprint 1**, el objetivo principal fue diseñar e implementar el módulo de consulta y lectura de los horarios asignados a las distintas rutas del sistema de recolección/transporte. Se construyó una arquitectura limpia basada en repositorios, servicios y controladores NestJS.
 
-| Criterio | Sprint 1 | Sprint 2 |
-|---|---|---|
-| Numero de commits de codigo fuente | `PENDIENTE: colocar cantidad y hashes` | `PENDIENTE: colocar cantidad y hashes` |
-| Numero de historias de usuario bajo responsabilidad | `PENDIENTE: colocar cantidad y codigo/nombre de HU` | `PENDIENTE: colocar cantidad y codigo/nombre de HU` |
-| Checklist para completar historias de usuario | Ver plantilla inferior | Ver plantilla inferior |
+### 🗂️ Estructura de Archivos Asignados
 
-## Plantilla de historia de usuario
-
-| Campo | Contenido |
+| Elemento | Detalle de Implementación / Ruta |
 |---|---|
-| Codigo / ID de historia | `PENDIENTE` |
-| Nombre de historia | `PENDIENTE` |
-| Sprint | `Sprint 1` / `Sprint 2` |
-| Modulo | `PENDIENTE` |
-| Responsable | Fernando Llosa Manchego |
-| Descripcion | Como usuario/administrador, quiero `PENDIENTE`, para `PENDIENTE`. |
-| Rama usada | `PENDIENTE` |
-| Commits relacionados | `PENDIENTE` |
-| Pull request | `PENDIENTE` |
-| Estado | Pendiente / En proceso / Completado |
+| **Módulo NestJS** | `apps/backend/src/modules/gestion-rutas/gestion-rutas.module.ts` |
+| **Responsabilidad** | Módulo de Gestión de Rutas y Horarios |
+| **Archivo Principal (Repositorio)** | `apps/backend/src/modules/gestion-rutas/repositorio/prisma/prisma-horario-ruta.repository.ts` |
+| **Controlador** | `apps/backend/src/modules/gestion-rutas/presentacion/controllers/horarios-ruta.controller.ts` |
+| **Servicio de Aplicación** | `apps/backend/src/modules/gestion-rutas/interfaz/services/horarios-ruta.service.ts` |
+| **Contrato (Puerto)** | `apps/backend/src/modules/gestion-rutas/repositorio/horario-ruta.repository.ts` |
+| **Entidad de Dominio** | `apps/backend/src/modules/gestion-rutas/dominio/entities/horario-ruta.entity.ts` |
 
-## Checklist de implementacion
+---
 
-| Item | Estado | Evidencia |
+### ⚙️ Operaciones Implementadas
+
+- **`buscarTodos()`**: Consulta general de la matriz de horarios configurados.
+- **`buscarPorId(id)`**: Obtención detallada de un registro específico de horario por su ID.
+- **`buscarPorRutaId(rutaId)`**: Consulta filtrada de la programación temporal de una ruta dada.
+
+---
+
+### 🌐 Endpoints HTTP Expuestos
+
+| Método | Endpoint | Nivel de Acceso | Descripción |
+|---|---|---|---|
+| `GET` | `/api/v1/rutas/:rutaId/horarios` | **Público** | Obtiene la lista de horarios mapeados a una ruta en particular. |
+| `GET` | `/api/v1/horarios-ruta` | **Público** | Lista general de todos los horarios de rutas registrados. |
+| `GET` | `/api/v1/horarios-ruta/:id` | **Público** | Recupera la información de un horario específico. |
+
+---
+
+## 📌 Sprint 2 — Programación Pública e Integración de Servicios
+
+### 🛠️ Descripción General
+El **Sprint 2** se centró en la creación del módulo de **Programación Pública**. Su propósito es ofrecer una capa de lectura unificada/read-model que integre información contextual de rutas, horarios, vehículos asignados y puntos de recolección de residuos para consulta ciudadana/pública sin duplicar la lógica CRUD de los módulos core.
+
+### 🗂️ Estructura de Archivos Asignados
+
+| Elemento | Detalle de Implementación / Ruta |
+|---|---|
+| **Módulo NestJS** | `apps/backend/src/modules/programacion-publica/programacion-publica.module.ts` |
+| **Responsabilidad** | Consultas públicas integradas de la operación del servicio |
+| **Servicio de Aplicación** | `apps/backend/src/modules/programacion-publica/interfaz/services/programacion-publica.service.ts` |
+| **Controlador Público** | `apps/backend/src/modules/programacion-publica/presentacion/controllers/programacion-publica.controller.ts` |
+| **DTO de Respuesta** | `apps/backend/src/modules/programacion-publica/interfaz/dto/programacion-publica.dto.ts` |
+
+---
+
+### 📋 Métodos del Servicio y Cobertura de Endpoints
+
+| Método | Responsabilidad y Lógica | Endpoint Asociado |
 |---|---|---|
-| Revise entidad, DTO, servicio, controlador y contrato del modulo. | [ ] | `PENDIENTE` |
-| Implemente unicamente los metodos bajo mi responsabilidad. | [ ] | `PENDIENTE` |
-| No modifique archivos compartidos sin coordinar. | [ ] | `PENDIENTE` |
-| Valide entradas usando los DTO existentes. | [ ] | `PENDIENTE` |
-| Maneje errores de persistencia de forma controlada. | [ ] | `PENDIENTE` |
-| Probe endpoints en Thunder Client/Postman u otra herramienta. | [ ] | `PENDIENTE` |
-| Registre capturas o resultados de pruebas. | [ ] | `PENDIENTE` |
-| Registre commits con mensaje claro. | [ ] | `PENDIENTE` |
+| `buscarProgramacionDelDia()` | Recupera las asignaciones e iteraciones operativas vigentes para la fecha actual. | `GET /api/v1/programacion/hoy` |
+| `buscarProgramacionPorRuta()` | Consulta la programación activa de una ruta específica. | `GET /api/v1/programacion/rutas/:rutaId` |
+| `buscarDetalleDeRuta()` | Vista consolidada que integra datos de la ruta, sus horarios, vehículos y puntos de recolección. | `GET /api/v1/programacion/rutas/:rutaId/detalle` |
+| `buscarHorariosPorRuta()` | Filtra únicamente los bloques de horarios asociados a una ruta. | `GET /api/v1/programacion/rutas/:rutaId/horarios` |
+| `buscarVehiculosPorRuta()` | Mapea las unidades vehiculares asignadas a una ruta. | `GET /api/v1/programacion/rutas/:rutaId/vehiculos` |
+| `buscarPuntosPorRuta()` | Devuelve los puntos geográficos de recolección respetando la secuencia/orden de recorrido. | `GET /api/v1/programacion/rutas/:rutaId/puntos` |
 
-## Buenas practicas aplicadas o por evidenciar
+---
 
-### Clean Code
+### 🔗 Mapeo de Dependencias (Puertos / Repositorios)
 
-| Categoria | Como evidenciarlo en el codigo | Evidencia del integrante |
-|---|---|---|
-| Nombres | Metodos, DTO y variables con intencion clara. | `PENDIENTE` |
-| Funciones | Metodos pequenos con una responsabilidad principal. | `PENDIENTE` |
-| Comentarios | Comentarios solo cuando aclaren decisiones, no para repetir el codigo. | `PENDIENTE` |
-| Estructura de codigo fuente | Ubicacion correcta en `dominio`, `repositorio`, `interfaz` o `presentacion`. | `PENDIENTE` |
-| Objetos / estructuras de datos | Entidades, DTO y contratos tipados. | `PENDIENTE` |
-| Tratamiento de errores | Uso de errores controlados y manejo de errores Prisma cuando corresponda. | `PENDIENTE` |
-| Clases | Clases con responsabilidad clara. | `PENDIENTE` |
+Para no alterar las reglas de negocio base ni duplicar persistencia, el servicio de **Programación Pública** orquesta consultas sobre los siguientes repositorios:
 
-### SOLID
-
-| Principio | Como aplicarlo en el modulo | Evidencia del integrante |
-|---|---|---|
-| SRP | Cada clase mantiene una responsabilidad principal. | `PENDIENTE` |
-| OCP | El servicio depende de contratos y permite cambiar implementaciones. | `PENDIENTE` |
-| LSP | La implementacion Prisma respeta el contrato del repositorio. | `PENDIENTE` |
-| ISP | Los contratos contienen operaciones relacionadas al modulo. | `PENDIENTE` |
-| DIP | Los servicios dependen de interfaces/tokens, no de clases concretas. | `PENDIENTE` |
-
-### Estilos de programacion
-
-| Estilo | Como puede aparecer en el proyecto | Evidencia del integrante |
-|---|---|---|
-| RESTful | Endpoints con `GET`, `POST`, `PATCH`, `DELETE`. | `PENDIENTE` |
-| Error/Exception Handling | Uso de `try/catch`, filtros o manejadores centralizados. | `PENDIENTE` |
-| Persistent Tables | Consultas Prisma hacia modelos persistentes. | `PENDIENTE` |
-| Things / Objetos | Entidades, servicios y repositorios con responsabilidades separadas. | `PENDIENTE` |
-| Pipeline | Transformacion de registros a entidades mediante mappers. | `PENDIENTE` |
-
-## Evidencias recomendadas
-
-- Capturas de Thunder Client/Postman.
-- Capturas de SonarLint si el docente lo solicita.
-- Capturas del tablero Trello con historia asignada.
-- Hashes de commits propios.
-- Fragmentos de codigo del metodo implementado.
-- Resultado de pruebas o validaciones ejecutadas.
+1. **Rutas:** `apps/backend/src/modules/gestion-rutas/repositorio/ruta.repository.ts`
+2. **Horarios:** `apps/backend/src/modules/gestion-rutas/repositorio/horario-ruta.repository.ts`
+3. **Vehículos:** `apps/backend/src/modules/gestion-rutas/repositorio/vehiculo.repository.ts`
+4. **Puntos de Recolección:** `apps/backend/src/modules/puntos-recoleccion/repositorio/punto-recoleccion.repository.ts`
+5. **Asignaciones Operativas:** `apps/backend/src/modules/asignaciones/repositorio/asignacion-operativa.repository.ts`

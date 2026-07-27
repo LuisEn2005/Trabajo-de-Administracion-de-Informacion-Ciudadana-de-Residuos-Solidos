@@ -1,5 +1,6 @@
-import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { AdministradorAutenticado, JwtPayload } from '../../dominio/entities/jwt-payload.entity';
 import {
   ADMINISTRADOR_REPOSITORY,
@@ -8,6 +9,15 @@ import {
 import { IniciarSesionDto } from '../dto/iniciar-sesion.dto';
 import { PerfilAdministradorDto } from '../dto/perfil-administrador.dto';
 import { RespuestaLoginDto } from '../dto/respuesta-login.dto';
+
+const MENSAJE_CREDENCIALES_INVALIDAS = 'Credenciales administrativas inválidas';
+
+type DatosAdministradorSeguro = {
+  id: number;
+  nombre: string;
+  email: string;
+  activo: boolean;
+};
 
 @Injectable()
 export class AuthService {
@@ -18,37 +28,63 @@ export class AuthService {
   ) {}
 
   async validarCredenciales(dto: IniciarSesionDto): Promise<AdministradorAutenticado> {
-    void dto;
-    void this.administradorRepository;
-    // TODO(S2-JUAN): implementar validación de credenciales administrativas.
-    throw new NotImplementedException(
-      'La validación de credenciales administrativas está pendiente',
-    );
+    const administrador = await this.administradorRepository.buscarPorEmail(dto.email);
+
+    if (!administrador?.activo) {
+      throw new UnauthorizedException(MENSAJE_CREDENCIALES_INVALIDAS);
+    }
+
+    const passwordValido = await bcrypt.compare(dto.password, administrador.passwordHash);
+
+    if (!passwordValido) {
+      throw new UnauthorizedException(MENSAJE_CREDENCIALES_INVALIDAS);
+    }
+
+    return this.mapearDatosAdministradorSeguro(administrador);
   }
 
   async iniciarSesion(dto: IniciarSesionDto): Promise<RespuestaLoginDto> {
-    void dto;
-    // TODO(S2-JUAN): implementar el flujo de inicio de sesión administrativo.
-    throw new NotImplementedException('El inicio de sesión administrativo está pendiente');
+    const administrador = await this.validarCredenciales(dto);
+    const accessToken = await this.generarToken(administrador);
+
+    return {
+      accessToken,
+      tokenType: 'Bearer',
+      administrador: this.obtenerPerfil(administrador),
+    };
   }
 
   async generarToken(administrador: AdministradorAutenticado): Promise<string> {
-    void administrador;
-    void this.jwtService;
-    // TODO(S2-JUAN): implementar la generación del token JWT administrativo.
-    throw new NotImplementedException('La generación del token administrativo está pendiente');
+    const payload: JwtPayload = {
+      sub: administrador.id,
+      email: administrador.email,
+      nombre: administrador.nombre,
+      activo: administrador.activo,
+    };
+
+    return this.jwtService.signAsync(payload);
   }
 
-  async obtenerPerfil(administrador: AdministradorAutenticado): Promise<PerfilAdministradorDto> {
-    void administrador;
-    // TODO(S2-JUAN): implementar la consulta del perfil administrativo autenticado.
-    throw new NotImplementedException('La consulta del perfil administrativo está pendiente');
+  obtenerPerfil(administrador: AdministradorAutenticado): PerfilAdministradorDto {
+    return this.mapearDatosAdministradorSeguro(administrador);
   }
 
   async validarAdministrador(payload: JwtPayload): Promise<AdministradorAutenticado> {
-    void payload;
-    void this.administradorRepository;
-    // TODO(S2-JUAN): implementar la validación del administrador desde el payload JWT.
-    throw new NotImplementedException('La validación del administrador autenticado está pendiente');
+    const administrador = await this.administradorRepository.buscarPorId(payload.sub);
+
+    if (!administrador?.activo || administrador.email !== payload.email) {
+      throw new UnauthorizedException('Administrador autenticado inválido');
+    }
+
+    return this.mapearDatosAdministradorSeguro(administrador);
+  }
+
+  private mapearDatosAdministradorSeguro(administrador: DatosAdministradorSeguro): DatosAdministradorSeguro {
+    return {
+      id: administrador.id,
+      nombre: administrador.nombre,
+      email: administrador.email,
+      activo: administrador.activo,
+    };
   }
 }

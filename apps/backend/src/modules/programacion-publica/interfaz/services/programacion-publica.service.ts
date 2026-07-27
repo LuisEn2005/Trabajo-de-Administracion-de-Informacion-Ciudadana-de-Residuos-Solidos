@@ -1,9 +1,12 @@
-import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
+import { Inject, Injectable, NotImplementedException, NotFoundException  } from '@nestjs/common';
+import { manejarErrorPrisma } from '../../../../shared/repositorio/prisma/manejar-error-prisma';
+import { PrismaService } from '../../../../shared/repositorio/prisma/prisma.service';
 import {
   ASIGNACION_OPERATIVA_REPOSITORY,
   AsignacionOperativaRepository,
 } from '../../../asignaciones/repositorio/asignacion-operativa.repository';
 import { HorarioRuta } from '../../../gestion-rutas/dominio/entities/horario-ruta.entity';
+import { Ruta } from '../../../gestion-rutas/dominio/entities/ruta.entity';
 import { Vehiculo } from '../../../gestion-rutas/dominio/entities/vehiculo.entity';
 import {
   HORARIO_RUTA_REPOSITORY,
@@ -17,7 +20,10 @@ import {
   VEHICULO_REPOSITORY,
   VehiculoRepository,
 } from '../../../gestion-rutas/repositorio/vehiculo.repository';
-import { PuntoRecoleccion } from '../../../puntos-recoleccion/dominio/entities/punto-recoleccion.entity';
+import {
+  EstadoPuntoRecoleccion,
+  PuntoRecoleccion,
+} from '../../../puntos-recoleccion/dominio/entities/punto-recoleccion.entity';
 import {
   PUNTO_RECOLECCION_REPOSITORY,
   PuntoRecoleccionRepository,
@@ -41,50 +47,85 @@ export class ProgramacionPublicaService {
     private readonly puntoRecoleccionRepository: PuntoRecoleccionRepository,
     @Inject(ASIGNACION_OPERATIVA_REPOSITORY)
     private readonly asignacionRepository: AsignacionOperativaRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   async buscarDetalleDeRuta(rutaId: number): Promise<DetalleRutaProgramacionDto> {
-    void rutaId;
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública integrada del detalle de ruta.
-    throw new NotImplementedException('La consulta pública de detalle de ruta está pendiente');
+    const ruta = await this.obtenerRutaOFallar(rutaId);
+    const [horarios, vehiculos, puntos] = await Promise.all([
+      this.horarioRutaRepository.buscarPorRutaId(rutaId),
+      this.vehiculoRepository.buscarPorRutaId(rutaId),
+      this.buscarPuntosPorRuta(rutaId),
+    ]);
+
+    return { ruta, horarios, vehiculos, puntos };
   }
 
   async buscarHorariosPorRuta(rutaId: number): Promise<HorarioRuta[]> {
-    void rutaId;
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública de horarios por ruta.
-    throw new NotImplementedException('La consulta pública de horarios por ruta está pendiente');
+    await this.obtenerRutaOFallar(rutaId);
+    return this.horarioRutaRepository.buscarPorRutaId(rutaId);
   }
 
   async buscarVehiculosPorRuta(rutaId: number): Promise<Vehiculo[]> {
-    void rutaId;
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública de vehículos por ruta.
-    throw new NotImplementedException('La consulta pública de vehículos por ruta está pendiente');
+    await this.obtenerRutaOFallar(rutaId);
+    return this.vehiculoRepository.buscarPorRutaId(rutaId);
   }
-
+  /**
+   * Puntos de recolección de una ruta, en el orden definido para el recorrido.
+   *
+   * PuntoRecoleccionRepository no expone ninguna consulta por rutaId (no es
+   * parte de sus métodos asignados), así que leemos directamente, vía Prisma,
+   * la tabla puente `RutaPuntoRecoleccion` que relaciona rutas y puntos. No
+   * duplica el CRUD de `puntos-recoleccion`: solo lee la relación.
+   */
   async buscarPuntosPorRuta(rutaId: number): Promise<PuntoRecoleccion[]> {
-    void rutaId;
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública de puntos por ruta.
-    throw new NotImplementedException('La consulta pública de puntos por ruta está pendiente');
+    await this.obtenerRutaOFallar(rutaId);
+
+    try {
+      const relaciones = await this.prisma.rutaPuntoRecoleccion.findMany({
+        where: { rutaId },
+        orderBy: { orden: 'asc' },
+        include: { puntoRecoleccion: true },
+      });
+
+      return relaciones.map(
+        (relacion) =>
+          new PuntoRecoleccion(
+            relacion.puntoRecoleccion.id,
+            relacion.puntoRecoleccion.nombre,
+            relacion.puntoRecoleccion.direccion,
+            relacion.puntoRecoleccion.referencia,
+            Number(relacion.puntoRecoleccion.latitud),
+            Number(relacion.puntoRecoleccion.longitud),
+            relacion.puntoRecoleccion.estado as unknown as EstadoPuntoRecoleccion,
+            relacion.puntoRecoleccion.createdAt,
+            relacion.puntoRecoleccion.updatedAt,
+          ),
+      );
+    } catch (error) {
+      manejarErrorPrisma(error, 'buscar los puntos de recolección de la ruta');
+    }
   }
 
+/**
+   * Programación pública del día: delega en
+   * `AsignacionOperativaRepository.buscarProgramacionPublica()`, que es quien
+   * decide qué asignaciones cuentan como "públicas" (p. ej. programadas o
+   * activas). Aquí solo se agrega la fecha de referencia.
+   */
   async buscarProgramacionDelDia(): Promise<ProgramacionDelDiaDto> {
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública de programación del día.
-    throw new NotImplementedException('La consulta pública de programación del día está pendiente');
+    const asignaciones = await this.asignacionRepository.buscarProgramacionPublica();
+
+    return { fecha: new Date(), asignaciones };
   }
 
   async buscarProgramacionPorRuta(rutaId: number): Promise<ProgramacionRutaDto> {
-    void rutaId;
-    this.marcarDependenciasPendientes();
-    // TODO(S2-INTEGRANTE-5): implementar la consulta pública de programación por ruta.
-    throw new NotImplementedException(
-      'La consulta pública de programación por ruta está pendiente',
-    );
+    const ruta = await this.obtenerRutaOFallar(rutaId);
+    const asignaciones = await this.asignacionRepository.buscarPorRuta(rutaId);
+
+    return { ruta, asignaciones };
   }
+
 
   private marcarDependenciasPendientes(): void {
     void this.rutaRepository;
@@ -92,5 +133,15 @@ export class ProgramacionPublicaService {
     void this.vehiculoRepository;
     void this.puntoRecoleccionRepository;
     void this.asignacionRepository;
+  }
+
+  private async obtenerRutaOFallar(rutaId: number): Promise<Ruta> {
+    const ruta = await this.rutaRepository.buscarPorId(rutaId);
+
+    if (!ruta) {
+      throw new NotFoundException(`No existe la ruta con id ${rutaId}.`);
+    }
+
+    return ruta;
   }
 }

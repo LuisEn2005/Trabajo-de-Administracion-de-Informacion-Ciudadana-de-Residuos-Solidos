@@ -4,6 +4,7 @@ import {
   ResumenInventarioContenedores,
   TipoContenedor,
 } from '../dominio/entities/contenedor.entity';
+import { ContenedorPersistencia } from './prisma/prisma-contenedor.repository';
 
 export const CONTENEDOR_REPOSITORY = Symbol('CONTENEDOR_REPOSITORY');
 
@@ -23,6 +24,11 @@ export interface ActualizarContenedorDatos {
   estado?: EstadoContenedor;
   puntoRecoleccionId?: number;
   fechaInstalacion?: Date;
+}
+
+export interface IContenedorMapper {
+  toDomain(registro: ContenedorPersistencia): Contenedor;
+  fromPrisma(contenedor: any): ContenedorPersistencia;
 }
 
 export interface ContenedorRepository {

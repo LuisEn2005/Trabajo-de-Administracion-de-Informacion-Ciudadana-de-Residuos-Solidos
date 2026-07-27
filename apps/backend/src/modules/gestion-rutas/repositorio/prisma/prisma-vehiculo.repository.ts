@@ -16,6 +16,17 @@ const PRISMA_RECORD_NOT_FOUND = 'P2025';
 export class PrismaVehiculoRepository implements VehiculoRepository {
   constructor(private readonly prisma: PrismaService) { }
 
+  private convertirAEntidad(vehiculo: any): Vehiculo {
+  return new Vehiculo(vehiculo.id, {
+    placa: vehiculo.placa,
+    carroceria: vehiculo.carroceria as unknown as TipoCarroceria,
+    rutaId: vehiculo.rutaId,
+    activo: vehiculo.activo,
+    createdAt: vehiculo.createdAt,
+    updatedAt: vehiculo.updatedAt,
+  });
+}
+
   async crear(datos: CrearVehiculoDatos): Promise<Vehiculo> {
     try {
       const vehiculo = await this.prisma.vehiculo.create({
