@@ -33,5 +33,13 @@ import { VehiculosController } from './presentacion/controllers/vehiculos.contro
       useClass: PrismaVehiculoRepository,
     },
   ],
+  exports: [
+    RutasService,
+    HorariosRutaService,
+    VehiculosService,
+    RUTA_REPOSITORY,
+    HORARIO_RUTA_REPOSITORY,
+    VEHICULO_REPOSITORY,
+  ],
 })
 export class GestionRutasModule {}
