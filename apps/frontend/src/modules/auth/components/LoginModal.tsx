@@ -113,7 +113,7 @@ function LoginModal({ onClose }: LoginModalProps) {
         </form>
 
         <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-xs leading-5 text-slate-500">
-          El formulario consume la API REST del backend en <strong>POST /api/v1/auth/login</strong> y guarda el token JWT para las solicitudes protegidas.
+          Tu sesión se mantendrá activa para que puedas administrar la información permitida del sistema de forma segura.
         </p>
       </section>
     </div>
