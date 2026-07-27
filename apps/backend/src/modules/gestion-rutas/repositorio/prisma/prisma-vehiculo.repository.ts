@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
+import { PrismaService } from '../../../../shared/repositorio/prisma/prisma.service';
 import { Vehiculo } from '../../dominio/entities/vehiculo.entity';
 import {
   ActualizarVehiculoDatos,

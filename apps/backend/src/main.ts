@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DomainErrorFilter } from './shared/presentacion/filters/domain-error.filter';
+import { ErrorPersistenciaFilter } from './shared/presentacion/filters/error-persistencia.filter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +11,7 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix('api');
   app.enableCors({ origin: config.get<string>('CORS_ORIGIN', 'http://localhost:5173') });
+  app.useGlobalFilters(new DomainErrorFilter(), new ErrorPersistenciaFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

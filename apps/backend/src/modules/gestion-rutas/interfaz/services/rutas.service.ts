@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundError } from '../../../../shared/domain/domain-error';
 import { ActualizarRutaDto } from '../dto/actualizar-ruta.dto';
 import { CrearRutaDto } from '../dto/crear-ruta.dto';
 import { Ruta } from '../../dominio/entities/ruta.entity';
@@ -19,8 +20,14 @@ export class RutasService {
     return this.rutaRepository.buscarTodos();
   }
 
-  buscarPorId(id: number): Promise<Ruta | null> {
-    return this.rutaRepository.buscarPorId(id);
+  async buscarPorId(id: number): Promise<Ruta> {
+    const ruta = await this.rutaRepository.buscarPorId(id);
+
+    if (!ruta) {
+      throw new NotFoundError(`No se encontró una ruta con el id ${id}.`);
+    }
+
+    return ruta;
   }
 
   actualizar(id: number, dto: ActualizarRutaDto): Promise<Ruta> {

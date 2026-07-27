@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../shared/infrastructure/prisma/prisma.module';
+import { PrismaModule } from '../../shared/repositorio/prisma/prisma.module';
 import { HorariosRutaService } from './interfaz/services/horarios-ruta.service';
 import { RutasService } from './interfaz/services/rutas.service';
 import { VehiculosService } from './interfaz/services/vehiculos.service';
