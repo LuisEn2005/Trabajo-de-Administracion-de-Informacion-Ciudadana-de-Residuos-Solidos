@@ -28,17 +28,17 @@ export class PuntosRecoleccionService {
   }
 
   async actualizar(id: number, dto: ActualizarPuntoRecoleccionDto) {
-    await this.buscarPorId(id); // Valida que exista
+    await this.buscarPorId(id);
     return this.puntoRepo.actualizar(id, dto);
   }
 
   async eliminar(id: number) {
-    await this.buscarPorId(id); // Valida que exista
+    await this.buscarPorId(id);
     return this.puntoRepo.eliminar(id);
   }
 
   async cambiarEstado(id: number, estado: EstadoPuntoRecoleccion) {
-    await this.buscarPorId(id); // Valida que exista
+    await this.buscarPorId(id);
     return this.puntoRepo.cambiarEstado(id, estado);
   }
 }
