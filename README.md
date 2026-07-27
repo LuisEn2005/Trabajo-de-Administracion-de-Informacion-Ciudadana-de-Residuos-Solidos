@@ -128,3 +128,37 @@ no presenta como terminadas funcionalidades que siguen pendientes.
 - Llosa Manchego Fernandito
 - Postigo Cabana Juan Carlos
 - Jara Arisaca Daysi
+
+### Convenciones de Codificación Aplicadas
+
+Práctica: Eliminación de Expresiones Muertas
+
+Fragmento de Código:
+
+```ts
+async buscarPorId(id: number): Promise<HorarioRuta | null> {
+  const horarioRuta = await this.prisma.horarioRuta.findUnique({
+    where: { id },
+  });
+
+  return horarioRuta ? this.toDomain(horarioRuta) : null;
+}
+```
+
+Práctica: Mapeo de Capas de Datos
+
+Fragmento de Código:
+
+```ts
+private toDomain(horarioRuta: HorarioRutaPrisma): HorarioRuta {
+  return new HorarioRuta(horarioRuta.id, {
+    rutaId: horarioRuta.rutaId,
+    frecuencia: horarioRuta.frecuencia,
+    diaSemana: horarioRuta.diaSemana,
+    turno: horarioRuta.turno,
+    horaInicio: this.fromPrismaTime(horarioRuta.horaInicio),
+    horaFin: this.fromPrismaTime(horarioRuta.horaFin),
+    activo: horarioRuta.activo,
+  });
+}
+```
