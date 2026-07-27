@@ -7,7 +7,7 @@ import { CambiarEstadoPuntoRecoleccionDto } from '../../interfaz/dto/cambiar-est
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-@Controller('puntos-recoleccion')
+@Controller('v1/puntos-recoleccion')
 export class PuntosRecoleccionController {
   constructor(private readonly service: PuntosRecoleccionService) { }
 
