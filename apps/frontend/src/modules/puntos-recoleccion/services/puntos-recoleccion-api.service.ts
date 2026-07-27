@@ -7,10 +7,12 @@ import type {
   PuntoRecoleccionApi,
 } from '../types/punto-recoleccion.types';
 
+const PUNTOS_RECOLECCION_ENDPOINT = '/puntos-recoleccion';
+
 export async function listarPuntosRecoleccionDesdeApi(
   signal?: AbortSignal,
 ): Promise<PuntoRecoleccion[]> {
-  const puntos = await apiRequest<PuntoRecoleccionApi[]>('/v1/puntos-recoleccion', { signal });
+  const puntos = await apiRequest<PuntoRecoleccionApi[]>(PUNTOS_RECOLECCION_ENDPOINT, { signal });
 
   return puntos.map(mapearPuntoRecoleccionApi);
 }
@@ -18,7 +20,7 @@ export async function listarPuntosRecoleccionDesdeApi(
 export async function crearPuntoRecoleccionEnApi(
   payload: CrearPuntoRecoleccionPayload,
 ): Promise<PuntoRecoleccion> {
-  const punto = await apiRequest<PuntoRecoleccionApi>('/v1/puntos-recoleccion', {
+  const punto = await apiRequest<PuntoRecoleccionApi>(PUNTOS_RECOLECCION_ENDPOINT, {
     accessToken: obtenerAccessToken(),
     body: payload,
     method: 'POST',
@@ -31,7 +33,7 @@ export async function actualizarPuntoRecoleccionEnApi(
   id: number,
   payload: ActualizarPuntoRecoleccionPayload,
 ): Promise<PuntoRecoleccion> {
-  const punto = await apiRequest<PuntoRecoleccionApi>(`/v1/puntos-recoleccion/${id}`, {
+  const punto = await apiRequest<PuntoRecoleccionApi>(`${PUNTOS_RECOLECCION_ENDPOINT}/${id}`, {
     accessToken: obtenerAccessToken(),
     body: payload,
     method: 'PATCH',
@@ -41,7 +43,7 @@ export async function actualizarPuntoRecoleccionEnApi(
 }
 
 export async function eliminarPuntoRecoleccionEnApi(id: number): Promise<void> {
-  await apiRequest<void>(`/v1/puntos-recoleccion/${id}`, {
+  await apiRequest<void>(`${PUNTOS_RECOLECCION_ENDPOINT}/${id}`, {
     accessToken: obtenerAccessToken(),
     method: 'DELETE',
   });
