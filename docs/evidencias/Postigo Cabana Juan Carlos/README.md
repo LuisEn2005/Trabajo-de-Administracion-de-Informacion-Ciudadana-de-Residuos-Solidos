@@ -1,11 +1,11 @@
-# Evidencias - Ronald Reynaldo Valdez Agüero
+# Evidencias - Juan Carlos Postigo
 
 ## Resumen general del avance
 
 | Sprint | Modulo | Responsabilidad | Archivo de detalle |
 |---|---|---|---|
-| Sprint 1 | Administracion de horarios | Crear, actualizar y eliminar horarios | [`SPRINT_1.md`](./SPRINT_1.md) |
-| Sprint 2 | Asignaciones operativas | Relacionar Ruta + Vehiculo + Horario | [`SPRINT_2.md`](./SPRINT_2.md) |
+| Sprint 1 | Gestion de rutas | CRUD completo de rutas | [`SPRINT_1.md`](./SPRINT_1.md) |
+| Sprint 2 | Autenticacion administrativa | Login administrativo, JWT, perfil y proteccion global | [`SPRINT_2.md`](./SPRINT_2.md) |
 
 ## Participacion solicitada por el docente
 
@@ -23,7 +23,7 @@
 | Nombre de historia | `PENDIENTE` |
 | Sprint | `Sprint 1` / `Sprint 2` |
 | Modulo | `PENDIENTE` |
-| Responsable | Ronald Reynaldo Valdez Agüero |
+| Responsable | Juan Carlos Postigo |
 | Descripcion | Como usuario/administrador, quiero `PENDIENTE`, para `PENDIENTE`. |
 | Rama usada | `PENDIENTE` |
 | Commits relacionados | `PENDIENTE` |
