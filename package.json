@@ -18,8 +18,5 @@
   },
   "devDependencies": {
     "prettier": "^3.6.2"
-  },
-  "dependencies": {
-    "@nestjs/mapped-types": "^2.1.1"
   }
 }
