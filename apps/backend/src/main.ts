@@ -8,9 +8,13 @@ import { ErrorPersistenciaFilter } from './shared/presentacion/filters/error-per
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  const origenesPermitidos = [
+    'http://localhost:5173',
+    'https://trabajo-de-administracion-de-inform-indol.vercel.app',
+  ];
 
   app.setGlobalPrefix('api');
-  app.enableCors({ origin: config.get<string>('CORS_ORIGIN', 'http://localhost:5173') });
+  app.enableCors({ origin: origenesPermitidos });
   app.useGlobalFilters(new DomainErrorFilter(), new ErrorPersistenciaFilter());
   app.useGlobalPipes(
     new ValidationPipe({
