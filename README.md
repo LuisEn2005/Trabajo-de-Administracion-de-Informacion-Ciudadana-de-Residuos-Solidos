@@ -371,3 +371,4 @@ El proyecto cuenta con una estructura full stack funcional, API REST, base de da
 - Incorporar pruebas automatizadas para servicios críticos.
 - Agregar reportes gráficos sobre rutas, contenedores y asignaciones.
 - Refinar permisos por rol para distintos tipos de usuarios administrativos.
+actualizacion de practica Git
